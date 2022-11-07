@@ -7,5 +7,3 @@ node_modules
 public/colleges/*
 public/assets/photo/*
 !public/assets/photo/.gitkeep
-
-.env

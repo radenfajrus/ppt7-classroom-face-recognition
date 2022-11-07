@@ -6,17 +6,21 @@
     overflow: hidden;
     flex-direction: row;
 }
-.flex1>div{
-    flex-grow: 1;
-}
 @media only screen and (max-device-width: 767px){
     .flex1{
         display: flex;
         overflow: auto;
         flex-direction: column;
     }
+    .flex1>div{
+        flex-grow: 0;
+    }
 }
-@media only screen and (min-device-width: 768px){}
+@media only screen and (min-device-width: 768px){
+    .flex1>div{
+        flex-grow: 1;
+    }
+}
 .cam-idle{
   /* background: rgba(255,255,255,1); */
   /* background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 35%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 100%);
@@ -32,9 +36,16 @@
     justify-content: top;
     align-items: center;
     color: white;
-    height: 100%;
+    
     gap: 2.4rem;
     padding: 60px 0px;
+}
+
+@media only screen and (max-device-width: 767px){
+    .flex2 {height: 50vh;}
+}
+@media only screen and (min-device-width: 768px){
+    .flex2 {height: 100%;}
 }
 .flex2> div {}
 .flex2-top> .title {
