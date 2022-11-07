@@ -201,9 +201,13 @@
         <span>Pengambilan gambar mengikuti <i>Face Border</i> yang disediakan untuk mempermudah pengambilan masing-masing posisi wajah</span>
         <img src="{{ url_for('assets',path='/img/lfr_template.png')}}">
     </div>
-    <div class="footer">
-        <button class="btn btn-info" onclick="start_capture()"> Start </button>
+    <div class="footer"  style="padding: 1em 2em;">
+        <button class="btn btn-info" style="padding: 1em 2em;" onclick="start_capture()"> Start </button>
     </div>
+    <input id="#mobilecamera1" type="file" accept="image/*" capture="environment" style="display: none;">
+    <input id="#mobilecamera2" type="file" accept="image/*" capture="environment" style="display: none;">
+    <input id="#mobilecamera3" type="file" accept="image/*" capture="environment" style="display: none;">
+
 </div>
 <div class="step step3" #step3 style="display: none;">
     <div class="title">Step 3. Recheck and Submit</div>
@@ -295,8 +299,14 @@
     }
 
 function start_capture(){
-    
+    $("#mobilecamera1").click();
 }
+$("#mobilecamera1").change(() => {
+    if(!$("#mobilecamera2").val()) $("#mobilecamera2").click();
+});
+$("#mobilecamera2").change(() => {
+    if(!$("#mobilecamera3").val()) $("#mobilecamera3").click();
+});
 
 $(window).on("load",function(){
     // $(".step1").show();

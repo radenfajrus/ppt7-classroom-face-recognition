@@ -490,6 +490,14 @@
     color: white;
 }
 </style>
+<style>
+.blueimp-gallery-display {
+    background-color: #000000dd;
+}
+#blueimp-gallery .slides .slide img {
+    height: 50%;
+}
+</style>
 {% endblock %}
 <!-- #000000de  #f1f3f4; -->
 
@@ -550,6 +558,7 @@
                 <div class="border2"></div>
             </div>
             <div class="flex2-bottom">
+                <input type="file" name="unggah" id="unggah" style="display:none;">
                 <button  type="button" class="btn btn-primary" onclick="upload_file()">
                     Unggah
                 </button>
@@ -613,7 +622,7 @@
             align-items: center;
             justify-content: center;">
             <div class="error-box" style="display: flex;justify-content: center;">
-                <img style="width: 70%;" src="{{ url_for('assets', path='/img/icon_error.png') }}">
+                <img style="max-width:50%;margin: 0px 0px 60px 0px;" src="{{ url_for('assets', path='/img/icon_error.png') }}">
             </div>
         </div>
     </div>
@@ -634,9 +643,9 @@ function display_base_img(img_data){
     $(".result-box").removeClass("complete");
     $(".result-box").removeClass("failed");
     $(".result-box").addClass(img_data.status);
-    $('.capturedimage').html(
+    $('.result-box .capturedimage').html(
                 '<h3>Here is your image:</h3>' + 
-                '<a href="'+img_data.img+'" title="Main Image" data-gallery="#blueimp-gallery-baseimg"><img src="'+img_data.img+'"/></a>' +
+                '<a href="'+img_data.img+'" title="Main Image" data-gallery="#blueimp-gallery"><img src="'+img_data.img+'"/></a>' +
                 '<center>'+img_data.date+'</center>' );
     if(img_data.status=="complete"){
         $("#on_scanning").hide();
@@ -651,12 +660,15 @@ function display_base_img(img_data){
         $("#on_error").show();
     }
 
-    $('.capturedimage > a').click(function() {
-        var gallery = blueimp.Gallery($('.capturedimage > a'));
+    $('.capturedimage > a').click(function(event) {
+        event = event || window.event;
+        var target = event.target || event.srcElement
+        link = target.src ? target.parentNode : target
+        options = {index: link, event: event}
+        
+        var gallery = blueimp.Gallery($('.capturedimage > a'),options);
     });
-    $('.body-row > div > a').click(function() {
-        var gallery = blueimp.Gallery($('.body-row > div > a'));
-    });
+
 }
 function display_base_img_by_index(index){
     display_base_img(results[index]);
@@ -701,9 +713,9 @@ function display_table_data(list_data){
         if(data.is_detected){
             list_htmls.push(`
                 <div class="body-row">
-                    <div class="col-md-3">
-                        <a href="${data.img}" title="Table Image ${index+1}" data-gallery="#blueimp-gallery-tabledata">
-                            <img src="${data.img}" style="width: 100%;">
+                    <div class="col-md-3" style="height: 100%;padding:0;">
+                        <a href="${data.img}" title="Table Image ${index+1}" data-gallery="#blueimp-gallery">
+                            <img src="${data.img}" style="width: 100%;height: 100%;object-fit: contain;">
                         </a>
                     </div>
                     <div class="col-md-6">${data.name}</div>
@@ -714,19 +726,27 @@ function display_table_data(list_data){
         else{
             list_htmls.push(`
                 <div class="body-row" style="background: #f8e5e5;">
-                    <div class="col-md-3">
-                        <a href="${data.img}" title="Table Image ${index+1}" data-gallery="#blueimp-gallery-tabledata">
-                            <img src="${data.img}" style="width: 100%;">
+                    <div class="col-md-3" style="height: 100%;padding:0;">
+                        <a href="${data.img}" title="Table Image ${index+1}" data-gallery="#blueimp-gallery">
+                            <img src="${data.img}" style="width: 100%;height: 100%;object-fit: contain;">
                         </a>
                     </div>
-                    <div class="col-md-9"><center>Tidak dikenali</center></div>
+                    <div class="col-md-9"><center>${data.name}</center></div>
                 </div> 
             `);
         }
         index = index+1;
     });
     $('.results>.body').html(list_htmls.join(""));
-
+        
+    $('.body-row > div > a').click(function(event) {
+        event = event || window.event;
+        var target = event.target || event.srcElement
+        link = target.src ? target.parentNode : target
+        options = {index: link, event: event}
+        
+        var gallery = blueimp.Gallery($('.body-row > div > a'),options);
+    });
 }
 function display_saved_img(list_img_data){
     list_htmls = [];
@@ -770,6 +790,26 @@ function display_saved_img(list_img_data){
 
 }
 
+
+function upload_file(){
+    $("#unggah").val(null);
+    $("#unggah").click();
+}
+$("#unggah").change(function(e){
+    var file = e.target.files[0];
+
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function (e) {
+        var base64 = e.target.result;
+        detect_images(base64.split(",")[1]);
+        return base64;
+    };
+    reader.onerror = function (error) {
+        console.log('Error: ', error);
+    };
+});
+
 function take_snapshot() {
     $(".results").hide();
     $("#on_error").hide();
@@ -777,47 +817,71 @@ function take_snapshot() {
     // // take snapshot and get image data
     Webcam.snap( function(data_uri) {
         // display results in page
+        detect_images(data_uri)
+    });
+    
+}
+
+function detect_images(data_uri){
+    var formdata = new FormData();
+        var datetime = (new Date()).toISOString();
+        formdata.append("img",data_uri);
+        formdata.append("date", datetime);
+
+        var requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow'
+        };
+        
         base_img = {
             img: data_uri,
-            date: (new Date()).toISOString(),
-            status: (Math.floor(Math.random()*2))?"complete":"failed",
-            data:[
-                {img: data_uri,is_detected: true,name: "Nama1asdassssssssssssssssssssssssssssssssssasdasd",nim: "23511111"},
-                {img: data_uri,is_detected: true,name: "Nama2",nim: "23522222"},
-                {img: data_uri,is_detected: true,name: "Nama3",nim: "23533333"},
-                {img: data_uri,is_detected: false,name: "Nama16",nim: "23566666"},
-                {img: data_uri,is_detected: true,name: "Nama15",nim: "23555555"},
-                {img: data_uri,is_detected: true,name: "Nama16",nim: "23566666"},
-                {img: data_uri,is_detected: true,name: "Nama17",nim: "23522222"},
-                {img: data_uri,is_detected: true,name: "Nama18",nim: "23533333"},
-                {img: data_uri,is_detected: true,name: "Nama19",nim: "23544444"},
-                {img: data_uri,is_detected: true,name: "Nama10",nim: "23555555"},
-                {img: data_uri,is_detected: true,name: "Nama11",nim: "23566666"},
-            ],
+            date: datetime,
+            status: "complete",
+            data:[],
         };
-        results.unshift(base_img);
-        let limit = 5;
-        if(results.length>limit){
-            results = results.slice(0,limit);
-        }
-        localStorage.setItem("captured_images",JSON.stringify(results));
 
-        display_base_img(base_img);
-        display_saved_img(results);
+        fetch("/api/detect",requestOptions)
+            .then((res)=>res.json())
+            .then((data)=>{
+                base_img.img = data.base_img
+                base_img.date = data.date
+                base_img.status = "complete"
+                base_img.data = data.data
 
-        
-        // fetch("POST",url,{
+                base_img.data.map((data) => {
+                    data.name = data.is_detected?data.name:"Tidak dikenali"
+                    return data
+                })
 
-        // }).then((res)=>{
-        // }).catch((err)=>{
+                results.unshift(base_img);
+                let limit = 5;
+                if(results.length>limit) results = results.slice(0,limit);
+                localStorage.setItem("captured_images",JSON.stringify(results));
 
-        // }).done(()=>{
-        //     $("#results").show();
-        //     $("#on_scanning").hide();
-        // });
-        
-    } );
-    
+                display_base_img(base_img);
+                display_saved_img(results);
+                $("#results").show();
+            })
+            .catch((e)=>{
+                base_img.status = "failed"
+                base_img.data = []
+
+                results.unshift(base_img);
+                let limit = 5;
+                if(results.length>limit) results = results.slice(0,limit);
+                localStorage.setItem("captured_images",JSON.stringify(results));
+
+                display_base_img(base_img);
+                display_saved_img(results);
+
+                $("#on_error").show();
+                console.log(e);
+            })
+            .finally(()=>{
+                close_cam();
+                $("#on_scanning").hide();
+            })
 }
 
 function close_cam(){
