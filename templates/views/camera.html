@@ -1,0 +1,306 @@
+{% extends "layouts/mobile.html" %}
+{% block styles %}
+<style>
+.step-container{
+    width: 100%;
+}
+.step-box{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+.step-line{
+    position: absolute;
+}
+.step-circle-box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 33%;
+    padding: 20px;
+}
+.step-circle{
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    background-color: grey;
+}
+.step-circle.active{
+    background-color: goldenrod ;
+}
+.step-circle.done{
+    background-color: green;
+}
+</style>
+<style>
+.step{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+.step .title{
+    font-size: 2rem;
+    padding-bottom: 20px;
+}
+
+.step1 .footer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+</style>
+<style>
+.searchbox-container > .searchbox {
+    display: flex;
+    flex-direction: row;
+    margin: 0.75rem;
+    background: #f1f3f4;
+    color: #0000008e;
+    border-radius: 8px;
+    align-items: center;
+}
+.searchbox-container > .searchbox > input {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    background: #f1f3f4;
+    color: #0000008e;
+    border: none;
+}
+.searchbox-container > .searchbox > input:focus {
+    border: none;
+    outline:none;
+    color: #202124;
+}
+.searchbox-container> .searchbox > .searchicon {
+    width: 50px;
+    scale: 0.9;
+    text-align: center;
+    cursor: pointer;
+    border-left: 1px solid #00000020;
+}
+</style>
+
+<style>
+    .loading-container{
+      margin:0;
+      padding:0;
+      background-color: transparent;
+    }
+    .loading-box{
+      width:150px;
+      height:150px;
+      /* position:absolute;
+      top:50%;
+      left:50%; */
+      background:transparent;
+    }
+    .loading-circle{
+      position:relative;
+      width: calc(100% + 0px);
+      height: calc(100% + 0px);
+      /* transform:translate(-50%,-50%); */
+      border-radius:50%;
+      box-shadow:0 0 20px rgba(0,0,0,.5);
+      border:6px solid grey;
+        background: transparent;
+    }
+    .loading-circle:before
+    {
+      content:'';
+      position:absolute;
+      width: calc(100% + 12px);
+      height: calc(100% + 12px);
+      top: -6px;
+      left: -6px;
+      border:6px solid transparent;
+    
+      background: linear-gradient( white , white) padding-box,
+                  linear-gradient(to right, white 70%, #4cd0c3 90%, #00afea 100%) border-box;
+      border-radius:50%;
+      animation:animateC 2s linear infinite;
+    }
+    .loading-box>span
+    {
+      position:absolute;
+      transform:translate(70%,-500%);
+      
+      text-align:center;
+      font-family:sans-serif;
+      font-size:0.9em;
+      color:black;
+      text-shadow:0 0 10px #fff000;
+    
+      background:transparent;
+      animation:animate 2s linear infinite;
+    }
+    @keyframes animateC
+    {
+      0%{transform:rotate(0deg);}
+      100%{transform:rotate(360deg);}
+    }
+    @keyframes animate
+    {
+      0%{opacity:0.3;}
+      50%{opacity:0.8;}
+      100%{opacity:0.3;}
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+<div class="step-container">
+    <div class="step-box">
+        <div class="step-line"></div>
+        <div class="step-circle-box">
+            <div id="step-circle-1" class="step-circle active"></div>
+            <div class="step-text">Step 1. Check NIM</div>
+        </div>
+        <div class="step-circle-box">
+            <div id="step-circle-2" class="step-circle"></div>
+            <div class="step-text">Step 2. Upload Foto</div>
+        </div>
+        <div class="step-circle-box">
+            <div id="step-circle-3" class="step-circle"></div>
+            <div class="step-text">Step 3. Recheck and Submit</div>
+        </div>
+    </div>
+</div>
+<div class="loading-container" style="display: none;">
+    <div class="loading-box">
+        <div class="loading-circle"></div>
+        <span>Processing...</span>
+    </div>
+</div>
+<div class="step step1" #step1  style="display: none;">
+    <div class="title">Step 1. Check NIM</div>
+    <div class="body">
+        <div class="searchbox-container">
+            <div class="searchbox">
+                <input id="nim_input" type="text" class="searchinput" placeholder="Masukkan NIM">
+                <button class="searchicon" onclick="search_nim()" style="border: none;"><i class="material-icons" style="scale:1.1;">send</i></button>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="result-loading" style="display: none;padding: 30px;" ></div>
+        <div class="results" style="display: none;"></div>
+        <div class="results-none" style="display: none;">NIM not found, click next to input data</div>
+        <button class="results-btn btn btn-info" onclick="to_step2()" style="display: none;"> Next </button>
+    </div>
+</div>
+<div class="step step2" #step2  style="display: none;">
+    <div class="title">Step 2. Upload Foto</div>
+    <div class="body" style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;">
+        <span>Foto dilakukan sebanyak 3x dengan metode LFR (Left, Front, Right)</span>
+        <span>Pengambilan gambar mengikuti <i>Face Border</i> yang disediakan untuk mempermudah pengambilan masing-masing posisi wajah</span>
+        <img src="{{ url_for('assets',path='/img/lfr_template.png')}}">
+    </div>
+    <div class="footer">
+        <button class="btn btn-info" onclick="start_capture()"> Start </button>
+    </div>
+</div>
+<div class="step step3" #step3 style="display: none;">
+    <div class="title">Step 3. Recheck and Submit</div>
+    <div class="body">
+    </div>
+    <div class="footer">
+    </div>
+</div>
+<div class="step step4" #step4 style="display: none;">
+    <div class="title">Data already submitted.<br>Thank you</div>
+</div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    var nim;
+    function setLoading(status){
+        if(status){
+            $(".result-loading").html(`
+                <div class="loading-container">
+                    <div class="loading-box">
+                        <div class="loading-circle"></div>
+                        <span>Processing...</span>
+                    </div>
+                </div>
+            `);
+            $(".result-loading").show();
+        }
+        else{
+            $(".result-loading").html(``);
+            $(".result-loading").hide();
+        };
+    }
+    // setLoading(true);
+    function search_nim(){
+        nim = $("#nim_input").val();
+        nim = parseInt(nim);
+
+        if(isNaN(nim)) return setLoading(false);
+
+        setLoading(true);
+        $(".results").hide();
+        $(".results-none").hide();
+        $(".results-btn").hide();
+
+        fetch("/api/images/"+nim)
+            .then((res) => {
+                return res.json();
+            })
+            .then((data) => {
+                console.log(data);
+                if(data.length){
+                    $(".results").show();
+                    to_step3(data);
+                }else{
+                    $(".results-none").show();
+                    $(".results-btn").show();
+                }
+                return data;
+            })
+            .catch(console.log)
+            .finally(()=>{
+                setLoading(false);
+            })
+    }
+    function to_step2(){
+        $("#step-circle-1").addClass("done");
+        $("#step-circle-2").addClass("active");
+        $(".step1").hide();
+        $(".step2").show();
+    }
+    function to_step3(data){
+        $("#step-circle-1").addClass("done");
+        $("#step-circle-2").addClass("done");
+        $("#step-circle-3").addClass("active");
+        // setLoading(true);
+        // $(".step1").hide();
+        // $(".step2").show();
+    }
+    function to_step4(data){
+        $("#step-circle-1").addClass("done");
+        $("#step-circle-2").addClass("done");
+        $("#step-circle-3").addClass("done");
+        // setLoading(true);
+        // $(".step1").hide();
+        // $(".step2").show();
+    }
+
+function start_capture(){
+    
+}
+
+$(window).on("load",function(){
+    // $(".step1").show();
+    to_step2();
+});
+</script>
+{% endblock %} 

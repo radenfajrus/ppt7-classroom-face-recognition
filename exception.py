@@ -42,3 +42,17 @@ class InternalServerError(AppError):
         "in":"Terjadi kesalahan system, harap hubungi Admin"
     }
     lang: str = "en"
+
+
+
+
+class InternalServerError(AppError):
+    status_code: str = 500
+    status: str = "InternalServerError"
+    dict_msg: Dict[str,str] = {
+        "en":"Unknown Error, please contact Administrator",
+        "in":"Terjadi kesalahan system, harap hubungi Admin"
+    }
+    lang: str = "en"
+
+

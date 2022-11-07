@@ -1,0 +1,31 @@
+{% extends "layouts/mobile.html" %}
+{% block styles %}
+<link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+<script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+<py-config>
+    - autoclose_loader: true
+    - runtimes:
+      - src: "https://cdn.jsdelivr.net/pyodide/dev/full/pyodide.js"
+        name: pyodide-dev
+        lang: python
+  </py-config>
+  <py-env>
+    - opencv-python
+    - paths:
+      - {{ url_for('assets', path='/script/pyscript.py') }}
+  </py-env>
+
+{% endblock %}
+
+{% block content %}
+<div class="step1" #step1>
+    <!-- <py-script> print('Hello PyScript!') </py-script> -->
+    <div id="debug"></div>
+</div>
+{% endblock %}
+
+<py-script src="{{ url_for('assets', path='/script/pyscript.py') }}" output="debug"></py-script>
+
+{% block scripts %}
+{% endblock %} 

@@ -1,0 +1,929 @@
+{% extends "layouts/main.html" %}
+{% block styles %}
+<style>
+.flex1{
+    display: flex;
+    overflow: hidden;
+}
+.flex1>div{
+    flex-grow: 1;
+}
+.cam-idle{
+  /* background: rgba(255,255,255,1); */
+  /* background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 35%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 100%);
+  background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255,255,255,1)), color-stop(35%, rgba(255,255,255,1)), color-stop(35%, rgba(0,0,0,1)), color-stop(100%, rgba(0,0,0,1)));
+  background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 35%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 100%);
+  background: -o-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 35%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 100%);
+  background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 35%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 100%); */
+  background: linear-gradient(to bottom, var(--bg-gd-1-a) 50%, var(--bg-gd-1-b) 50%);
+}
+.flex2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    align-items: center;
+    color: white;
+    height: 100%;
+    gap: 2.4rem;
+    padding: 60px 0px;
+}
+.flex2> div {}
+.flex2-top> .title {
+    font-size: 3.2em;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0px;
+}
+.flex2-top> .title >img {
+    size: 3.2em;
+    color:white;
+}
+.flex2-top> .description {
+    font-size: 1.8em;
+    text-align: center;
+}
+.flex2-mid  {
+    width: 440px;
+    height: 300px;
+    background-color: #847e7d;
+    background: url("{{ url_for('assets', path='/img/photo_idle.png') }}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center top;
+    justify-self: center;
+    border-radius: 8px;
+    box-shadow: 0px 0px 2px 2px #88888850;
+    cursor: pointer;
+}
+.flex2-bottom> button {
+    background-color: var(--bg-gd-1-a);
+    padding: 0.3em 0.8em;
+    font-size: 1.6em;
+    font-weight: 500;
+}
+
+.cam-recording{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, var(--bg-gd-1-a) 50%, var(--bg-gd-1-b) 50%);
+}
+.cam-bottom{
+    display: flex;
+    gap: 10px;
+    position: fixed;
+    bottom: 12%;
+}
+.cam-bottom>button{
+    background-color: var(--bg-gd-1-a);
+    padding: 0.3em 0.8em;
+    font-size: 1.6em;
+    font-weight: 500;
+
+}
+.result-box {
+    background-color: white;
+    width: 400px;
+    flex-grow: 0 !important;
+    box-shadow:
+        5px 0px 11px 0px rgba(0, 0, 0, 0.55),
+        -5px 0px 11px 0px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #202124;
+    justify-content: start;
+}
+.result-box > .title {
+    font-size: 2em;
+    font-weight: 500;
+    padding: 10px 25px;
+    color: #0000008e;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.result-box > .title > span:after {
+    content: "waiting";
+    color: transparent;
+}
+.result-box.failed > .title > span:after {
+    content: "Failed";
+    color: #0000008e;
+}
+.result-box.complete > .title > span:after {
+    content: "Complete";
+    color: #0000008e;
+}
+
+.result-box > .title > i {
+    scale: 1.1;
+    margin-top: 2px;
+    color: #00e291;
+}
+.result-box > .title > i:before {
+    content: "";
+}
+.result-box.failed > .title > i:before {
+    content: "new_releases";
+    color: #e20091;
+}
+.result-box.complete > .title > i:before {
+    content: "verified";
+    color: #00e291;
+}
+
+
+.result-box > .capturedimage {
+    padding: 0px 20px;
+}
+.result-box > .capturedimage > a> img {
+    padding: 10px 40px;
+    width: 100%;
+}
+.searchbox-container > .searchbox {
+    display: flex;
+    flex-direction: row;
+    margin: 0.75rem;
+    background: #f1f3f4;
+    color: #0000008e;
+    border-radius: 8px;
+    align-items: center;
+}
+.searchbox-container > .searchbox > input {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    background: #f1f3f4;
+    color: #0000008e;
+    border: none;
+}
+.searchbox-container > .searchbox > input:focus {
+    border: none;
+    outline:none;
+    color: #202124;
+}
+.searchbox-container> .searchbox > .searchicon {
+    width: 50px;
+    scale: 0.9;
+    text-align: center;
+    cursor: pointer;
+    border-left: 1px solid #00000020;
+}
+
+
+.result-box > .loading-box {
+    flex-grow: 1;
+}
+.result-box > .results {
+    padding: 0px 12px;
+    width: 100%;
+    min-height: 200px;
+
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+.results > .header {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    color: #0000008e;
+    background-color: #f1f3f4;
+}
+.results > .header > div {
+    padding: 10px 10px;
+}
+.results > .header > div:first-child {
+    text-align: center;
+}
+.results > .body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: auto;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+.results > .body > .body-row {
+    display: flex;
+    flex-direction: row;
+    height: 60px;
+    align-items: center;
+    border-bottom: 1px solid lightgray;
+    width: 100%;
+    overflow-wrap: break-word;
+}
+.results > .body > .body-row > div {
+    padding: 10px 10px;
+}
+.results > .body > .body-row > div:first-child {
+    text-align: center;
+}
+
+
+.results > .footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+    align-items: center;
+    gap:5px;
+}
+.results > .footer > div {
+    display: flex;
+    cursor: pointer;
+}
+.results > .footer > .paging-prev {
+    color: var(--bg-gd-1-a);
+}
+.results > .footer > .paging-prev:hover {
+    background-color: var(--bg-gd-1-a);
+    color: white;
+}
+.results > .footer > .paging-next {
+    color: var(--bg-gd-1-a);
+}
+.results > .footer > .paging-next:hover {
+    background-color: var(--bg-gd-1-a);
+    color: white;
+}
+
+
+.results > .footer > .pagenumber {
+    display: flex;
+    flex-direction: row;
+    gap:5px;
+    align-items: center;
+}
+.results > .footer > .pagenumber > div {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    width: 25px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color:  var(--bg-gd-1-a);
+}
+.results > .footer > .pagenumber > div:hover {
+    background-color: var(--bg-gd-1-a);
+    color: white;
+}
+
+.results > .footer > .pagenumber > div.active {
+    background-color: var(--bg-gd-1-a);
+    color: white;
+}
+
+</style>
+<style>
+.loading-container{
+  width: 100%;
+  height: 100%;
+  margin:0;
+  padding:0;
+  background-color: #1e1e1e;
+}
+.loading-box{
+  width:150px;
+  height:150px;
+  position:relative;
+  top:50%;
+  left:50%;
+  background:transparent;
+}
+.loading-circle{
+  position:absolute;
+  width: calc(100% + 0px);
+  height: calc(100% + 0px);
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  box-shadow:0 0 20px rgba(0,0,0,.5);
+  border:6px solid white;
+    background: transparent;
+}
+.loading-circle:before
+{
+  content:'';
+  position:absolute;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  top: -6px;
+  left: -6px;
+  border:6px solid transparent;
+
+  background: linear-gradient( #1e1e1e , #1e1e1e) padding-box,
+              linear-gradient(to right, white 70%, #4cd0c3 90%, #00afea 100%) border-box;
+  border-radius:50%;
+  animation:animateC 2s linear infinite;
+}
+.loading-box>span
+{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  
+  text-align:center;
+  font-family:sans-serif;
+  font-size:0.9em;
+  color:white;
+  text-shadow:0 0 10px #fff000;
+
+  background:transparent;
+  animation:animate 2s linear infinite;
+}
+@keyframes animateC
+{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+@keyframes animate
+{
+  0%{opacity:0.3;}
+  50%{opacity:0.8;}
+  100%{opacity:0.3;}
+}
+</style>
+<style>
+.carousel-toogle {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    left: calc(100% - 460px);
+    transform:translate(-50%,50%);
+    color: white;
+    background-color: rgba(220, 220, 220, 0.2756);
+    z-index: 100;
+/* 
+	border-top: 15px solid #555;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent; */
+    border-radius: 20px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    animation: at-ripple 0.6s linear infinite;
+    
+    bottom: 170px;
+    transition: bottom 1s; 
+}
+@-webkit-keyframes at-ripple {
+  0% {
+    box-shadow: 0 4px 20px rgba(102, 102, 102, 0.1), 0 0 0 0 rgba(102, 102, 102, 0.1), 0 0 0 5px rgba(102, 102, 102, 0.1), 0 0 0 10px rgba(102, 102, 102, 0.1);
+  }
+  100% {
+    box-shadow: 0 4px 20px rgba(102, 102, 102, 0.1), 0 0 0 5px rgba(102, 102, 102, 0.1), 0 0 0 10px rgba(102, 102, 102, 0.1), 0 0 0 20px rgba(102, 102, 102, 0);
+  }
+}
+
+.carousel-toogle.down {
+    bottom: 40px;
+    transition: bottom 1s; 
+}
+.carousel-toogle.up > i:before {
+    content: "keyboard_double_arrow_down";
+}
+.carousel-toogle.down > i:before {
+    content: "keyboard_double_arrow_up";
+}
+.carousel {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    width: calc(100% - 400px);
+    background-color: #0000008e;
+    gap: 10px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    height: 170px;
+    padding: 10px 40px;
+    transition: height 1s, padding 1s; 
+}
+.carousel.down {
+    height: 0px;
+    padding: 0px 40px;
+    transition: height 1s, padding 1s; 
+}
+.carousel > span:after {
+    color: rgba(255, 255, 255, 0.756);
+    font-size: 1.2em;
+    content: "Captured Images...";
+}
+.carousel > .body {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+.carousel > .body > .carousel-images-list {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+.slick-track {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    height: 100%;
+}
+.carousel-images {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.756);
+    
+}
+.carousel-images > img {
+    justify-content: center;
+    width: 160px;
+    height: 100px;
+    background-color: #ffffff1e;
+    cursor: pointer;
+    border: none;
+    outline:none;
+    border-style:none;
+}
+.carousel-images > .remove_image {
+    position: absolute;
+    /* right: 0; */
+    color: white;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(220, 220, 220, 0.1756);
+    z-index: 300;
+    cursor: pointer;
+    animation: at-ripple 0.6s linear infinite;
+    border-radius: 10px;
+    visibility: visible;
+    margin-left: 160px;
+    margin-bottom: 120px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.carousel-images > .remove_image > i {
+    color: #ffffff4e;
+    scale: 0.8;
+}
+.carousel-prev{
+    position: absolute;
+    float: left;
+    color: white;
+}
+.carousel-next{
+    position: absolute;
+    float: right;
+    color: white;
+}
+</style>
+{% endblock %}
+<!-- #000000de  #f1f3f4; -->
+
+{% block content %}
+<div
+  id="blueimp-gallery"
+  class="blueimp-gallery"
+  aria-label="image gallery"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="slides" aria-live="polite"></div>
+  <h3 class="title"></h3>
+  <a
+    class="prev"
+    aria-controls="blueimp-gallery"
+    aria-label="previous slide"
+    aria-keyshortcuts="ArrowLeft"
+  ></a>
+  <a
+    class="next"
+    aria-controls="blueimp-gallery"
+    aria-label="next slide"
+    aria-keyshortcuts="ArrowRight"
+  ></a>
+  <a
+    class="close"
+    aria-controls="blueimp-gallery"
+    aria-label="close"
+    aria-keyshortcuts="Escape"
+  ></a>
+  <a
+    class="play-pause"
+    aria-controls="blueimp-gallery"
+    aria-label="play slideshow"
+    aria-keyshortcuts="Space"
+    aria-pressed="false"
+    role="button"
+  ></a>
+  <ol class="indicator"></ol>
+</div>
+<div class="flex1">
+    <div class="cam-idle">
+        <div class="flex2">
+            <div class="flex2-top">
+                <div class="title">
+                    <!-- <img src="https://uploads-ssl.webflow.com/60edc9e07c55fbb772884be6/61a545117a50ad0ff5e8a418_FaceId-XESTO-BLue.png" /> -->
+                    Gambar
+                </div>
+                <div class="description">
+                    Identifikasi foto wajah Mahasiswa<br>
+                    Silahkan pilih media inputan gambar
+                </div>
+            </div>
+            <div class="flex2-mid">
+                <!-- <img src="{{ url_for('assets', path='/img/photo_idle.png') }}" />  -->
+                <div class="border1"></div>
+                <div class="border2"></div>
+            </div>
+            <div class="flex2-bottom">
+                <button  type="button" class="btn btn-primary" onclick="upload_file()">
+                    Unggah
+                </button>
+            </div>
+        </div>
+        <div class="carousel-toogle down"><i class="material-icons"></i></div>
+        <div class="carousel down">
+            <span class="title"></span>
+            <div class="body">
+                <!-- <div class="carousel-prev"> Prev </div> -->
+                <div class="carousel-images-list"></div>
+                <!-- <div class="carousel-next"> Next </div> -->
+            </div>
+        </div>
+    </div>
+    <div class="cam-recording" style="display: none;">
+        <div class="cam-live"></div>
+        <div class="cam-bottom">
+            <button  type="button" class="btn btn-primary" onclick="take_snapshot()">
+                Capture
+            </button>
+            <button  type="button" class="btn btn-primary" onclick="close_cam()">
+                Close
+            </button>
+        </div>
+    </div>
+    <div class="result-box">
+        <div class="title"><span></span><i class="material-icons"></i></div>
+        <div class="capturedimage"></div>
+        <div class="searchbox-container">
+            <div class="searchbox">
+                <input type="text" class="searchinput" placeholder="Pencarian melalui nama / nim">
+                <div class="searchicon"><i class="material-icons">send</i></div>
+            </div>
+        </div>
+        <div class="results">
+            <div class="header">
+                <div class="col-md-3">Gambar</div>
+                <div class="col-md-6">Nama</div>
+                <div class="col-md-3">NIM</div>
+            </div>
+            <div class="body">
+            </div>
+            <div class="footer">
+                <div class="paging-prev"  onclick="change_page(current_page-1)"><i class="material-icons">keyboard_arrow_left</i></div>
+                <div class="pagenumber">
+                </div>
+                <div class="paging-next"  onclick="change_page(current_page+1)"><i class="material-icons">keyboard_arrow_right</i></div>
+            </div>
+        </div>
+        <div class="loading-container" id="on_scanning" style="display: none;">
+            <div class="loading-box">
+                <div class="loading-circle"></div>
+                <span>Scanning...</span>
+            </div>
+        </div>
+        <div class="error-container" id="on_error" style="display: none;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;">
+            <div class="error-box" style="display: flex;justify-content: center;">
+                <img style="width: 70%;" src="{{ url_for('assets', path='/img/icon_error.png') }}">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('assets', path='/js/webcam.js') }}"></script>
+<script>
+
+var base_img = {};
+var results = [];
+var current_page = 1;
+var row_per_page = 5;
+
+function display_base_img(img_data){
+    $(".result-box").removeClass("complete");
+    $(".result-box").removeClass("failed");
+    $(".result-box").addClass(img_data.status);
+    $('.capturedimage').html(
+                '<h3>Here is your image:</h3>' + 
+                '<a href="'+img_data.img+'" title="Main Image" data-gallery="#blueimp-gallery-baseimg"><img src="'+img_data.img+'"/></a>' +
+                '<center>'+img_data.date+'</center>' );
+    if(img_data.status=="complete"){
+        $("#on_scanning").hide();
+        $("#on_error").hide();
+        $(".results").show();
+        display_table_pagination(img_data.data);
+        display_table_data(img_data.data);
+    }
+    if(img_data.status=="failed"){
+        $("#on_scanning").hide();
+        $(".results").hide();
+        $("#on_error").show();
+    }
+
+    $('.capturedimage > a').click(function() {
+        var gallery = blueimp.Gallery($('.capturedimage > a'));
+    });
+    $('.body-row > div > a').click(function() {
+        var gallery = blueimp.Gallery($('.body-row > div > a'));
+    });
+}
+function display_base_img_by_index(index){
+    display_base_img(results[index]);
+}
+function change_page(page){
+    let max_page = 1+(base_img.data.length/row_per_page);
+    if(page>max_page || page<1) return;
+
+    current_page = page;
+
+    let key = $(".searchinput").val();
+    if(key.length>0){
+        filtered_data = base_img.data.filter((value)=> value.name.toLowerCase().includes(key) || value.nim.toLowerCase().includes(key));
+    }else{
+        filtered_data = base_img.data;
+    }
+
+    display_table_pagination(filtered_data);
+    display_table_data(filtered_data);
+}
+function display_table_pagination(list_data){
+    let max_page = 1+(list_data.length/row_per_page);
+    if(current_page>max_page){
+        current_page = 1;
+    }
+
+    list_htmls = [];
+    for(let page = 1; page <= max_page; page++){
+        list_htmls.push(`
+            <div id="row${page}" class="${(current_page==(page))?"active":""}" onclick="change_page(${page})">${page}</div>
+        `);
+    }
+    $('.pagenumber').html(list_htmls.join(""));
+}
+function display_table_data(list_data){
+    
+    list_htmls = [];
+    let index = 0;
+    list_data_page = list_data.slice((current_page-1)*row_per_page,((current_page-1)*row_per_page)+row_per_page);
+    list_data_page.forEach(data => {
+        
+        if(data.is_detected){
+            list_htmls.push(`
+                <div class="body-row">
+                    <div class="col-md-3">
+                        <a href="${data.img}" title="Table Image ${index+1}" data-gallery="#blueimp-gallery-tabledata">
+                            <img src="${data.img}" style="width: 100%;">
+                        </a>
+                    </div>
+                    <div class="col-md-6">${data.name}</div>
+                    <div class="col-md-3">${data.nim}</div>
+                </div> 
+            `);
+        }
+        else{
+            list_htmls.push(`
+                <div class="body-row" style="background: #f8e5e5;">
+                    <div class="col-md-3">
+                        <a href="${data.img}" title="Table Image ${index+1}" data-gallery="#blueimp-gallery-tabledata">
+                            <img src="${data.img}" style="width: 100%;">
+                        </a>
+                    </div>
+                    <div class="col-md-9"><center>Tidak dikenali</center></div>
+                </div> 
+            `);
+        }
+        index = index+1;
+    });
+    $('.results>.body').html(list_htmls.join(""));
+
+}
+function display_saved_img(list_img_data){
+    list_htmls = [];
+    let index = 0;
+    list_img_data.forEach(img_data => {
+        let color = (img_data.status=="complete")?"#00e291":"#e20091";
+        list_htmls.push(`
+                <div class="carousel-images">
+                    <img class="image" src="${img_data.img}" onclick="display_base_img_by_index(${index});" style="border: 2px solid ${color};"></img>
+                    <span class="date">${index+1}. ${img_data.date}</span>
+                    <div class="remove_image" onclick="remove_images(${index})"><i class="material-icons">close</i></div>
+                </div>`);
+        index = index+1;
+    });
+
+    $('.carousel-images-list').html(list_htmls.join(""));
+
+    // $('.carousel-images-list').on('wheel', function(e) {
+    //     e.preventDefault();
+    //         this.scrollLeft -= (e.originalEvent.deltaY);
+    // });
+    // $('.carousel-images-list')
+	// .on('init', () => {
+    //     $('.carousel-images-list').on('wheel', (function(e) {
+    //         e.preventDefault();
+    //         if (e.originalEvent.deltaY < 0) {
+    //             $('.carousel-images-list').slick('slickPrev');
+    //         } else {
+    //             $('.carousel-images-list').slick('slickNext');
+    //         }
+    //     }));
+	// })
+	// .slick({
+    //     centerMode: true,
+    //     slidesToShow: 5,
+    //     slidesToScroll: 1,
+	// 	dots: true,
+	// 	horizontal: true,
+	// 	infinite: false,
+	// });
+
+}
+
+function take_snapshot() {
+    $(".results").hide();
+    $("#on_error").hide();
+    $("#on_scanning").show();
+    // // take snapshot and get image data
+    Webcam.snap( function(data_uri) {
+        // display results in page
+        base_img = {
+            img: data_uri,
+            date: (new Date()).toISOString(),
+            status: (Math.floor(Math.random()*2))?"complete":"failed",
+            data:[
+                {img: data_uri,is_detected: true,name: "Nama1asdassssssssssssssssssssssssssssssssssasdasd",nim: "23511111"},
+                {img: data_uri,is_detected: true,name: "Nama2",nim: "23522222"},
+                {img: data_uri,is_detected: true,name: "Nama3",nim: "23533333"},
+                {img: data_uri,is_detected: false,name: "Nama16",nim: "23566666"},
+                {img: data_uri,is_detected: true,name: "Nama15",nim: "23555555"},
+                {img: data_uri,is_detected: true,name: "Nama16",nim: "23566666"},
+                {img: data_uri,is_detected: true,name: "Nama17",nim: "23522222"},
+                {img: data_uri,is_detected: true,name: "Nama18",nim: "23533333"},
+                {img: data_uri,is_detected: true,name: "Nama19",nim: "23544444"},
+                {img: data_uri,is_detected: true,name: "Nama10",nim: "23555555"},
+                {img: data_uri,is_detected: true,name: "Nama11",nim: "23566666"},
+            ],
+        };
+        results.unshift(base_img);
+        let limit = 5;
+        if(results.length>limit){
+            results = results.slice(0,limit);
+        }
+        localStorage.setItem("captured_images",JSON.stringify(results));
+
+        display_base_img(base_img);
+        display_saved_img(results);
+
+        
+        // fetch("POST",url,{
+
+        // }).then((res)=>{
+        // }).catch((err)=>{
+
+        // }).done(()=>{
+        //     $("#results").show();
+        //     $("#on_scanning").hide();
+        // });
+        
+    } );
+    
+}
+
+function close_cam(){
+    $(".cam-recording").hide();
+    $(".cam-idle").show();
+}
+
+function open_cam(){
+    Webcam.set({
+        width: $(".cam-idle").width(),
+        height: $(".cam-idle").height(),
+        image_format: 'jpeg',
+        jpeg_quality: 90
+    });
+
+    $(".cam-idle").hide();
+    Webcam.attach( '.cam-live' );
+    $(".cam-recording").show();
+
+}
+	
+function remove_images(index){
+    results.splice(index, 1);
+    localStorage.setItem("captured_images",JSON.stringify(results));
+    display_saved_img(results);
+}
+function load_localstorage(){
+    results = localStorage.getItem("captured_images");
+    try {
+        results = JSON.parse(results);
+    } catch(e) {
+        console.log("parse error");
+        console.log(results);
+        results = [];
+    }
+    
+    if (!results || !Array.isArray(results)) results = [];
+
+    display_saved_img(results);
+    if (results.length >0){
+        base_img = results[0];
+        display_base_img(base_img);
+    }else{
+        base_img = {};
+    }
+    
+    carousel_toggle = sessionStorage.getItem("carousel-toggle");
+    if(carousel_toggle=="down"){
+        $(".carousel-toogle").removeClass("up");
+        $(".carousel-toogle").removeClass("down");
+        $(".carousel-toogle").addClass("down");
+        
+        $(".carousel").removeClass("up");
+        $(".carousel").removeClass("down");
+        $(".carousel").addClass("down");
+    }
+    if(carousel_toggle=="up"){
+        $(".carousel-toogle").removeClass("up");
+        $(".carousel-toogle").removeClass("down");
+        $(".carousel-toogle").addClass("up");
+
+        $(".carousel").removeClass("up");
+        $(".carousel").removeClass("down");
+        $(".carousel").addClass("up");
+    }
+}
+
+load_localstorage();
+
+$(window).on("load",function(){
+    $(".flex2-mid").click(()=>{
+        open_cam()
+    });
+    
+    $(".carousel-toogle").click(()=>{
+        if($(".carousel-toogle").hasClass("up")){
+            sessionStorage.setItem("carousel-toggle","down");
+
+            $(".carousel-toogle").removeClass("up");
+            $(".carousel-toogle").removeClass("down");
+            $(".carousel-toogle").addClass("down");
+            
+            $(".carousel").removeClass("up");
+            $(".carousel").removeClass("down");
+            $(".carousel").addClass("down");
+        }else{
+            sessionStorage.setItem("carousel-toggle","up");
+
+            $(".carousel-toogle").removeClass("up");
+            $(".carousel-toogle").removeClass("down");
+            $(".carousel-toogle").addClass("up");
+
+            $(".carousel").removeClass("up");
+            $(".carousel").removeClass("down");
+            $(".carousel").addClass("up");
+        }
+    });
+
+    
+    $(".searchinput").on('paste input',function(e){
+        let key = e.target.value.toLowerCase();
+        filtered_data = base_img.data.filter((value)=> value.name.toLowerCase().includes(key) || value.nim.toLowerCase().includes(key));
+        display_table_pagination(filtered_data);
+        display_table_data(filtered_data);
+    });
+
+});
+</script>
+{% endblock %} 

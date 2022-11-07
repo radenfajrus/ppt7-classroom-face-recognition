@@ -1,0 +1,81 @@
+{% extends "layouts/main.html" %}
+{% block styles %}
+<style>
+.loading-container{
+  margin:0;
+  padding:0;
+  background-color: #1e1e1e;
+}
+.loading-box{
+  width:150px;
+  height:150px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  background:transparent;
+}
+.loading-circle{
+  position:absolute;
+  width: calc(100% + 0px);
+  height: calc(100% + 0px);
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  box-shadow:0 0 20px rgba(0,0,0,.5);
+  border:6px solid white;
+    background: transparent;
+}
+.loading-circle:before
+{
+  content:'';
+  position:absolute;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  top: -6px;
+  left: -6px;
+  border:6px solid transparent;
+
+  background: linear-gradient( #1e1e1e , #1e1e1e) padding-box,
+              linear-gradient(to right, white 70%, #4cd0c3 90%, #00afea 100%) border-box;
+  border-radius:50%;
+  animation:animateC 2s linear infinite;
+}
+.loading-box>span
+{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  
+  text-align:center;
+  font-family:sans-serif;
+  font-size:0.9em;
+  color:white;
+  text-shadow:0 0 10px #fff000;
+
+  background:transparent;
+  animation:animate 2s linear infinite;
+}
+@keyframes animateC
+{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+@keyframes animate
+{
+  0%{opacity:0.3;}
+  50%{opacity:0.8;}
+  100%{opacity:0.3;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="loading-container">
+<div class="loading-box">
+    <div class="loading-circle"></div>
+    <span>Scanning...</span>
+</div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+{% endblock %} 

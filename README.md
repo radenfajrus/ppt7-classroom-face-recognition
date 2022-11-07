@@ -23,3 +23,6 @@ pip install -r requirement.txt
 pip freeze > requirement.txt
 
 ## create .env if needed
+
+## Run App
+python main.py
