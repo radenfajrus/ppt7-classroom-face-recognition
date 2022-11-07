@@ -4,10 +4,19 @@
 .flex1{
     display: flex;
     overflow: hidden;
+    flex-direction: row;
 }
 .flex1>div{
     flex-grow: 1;
 }
+@media only screen and (max-device-width: 767px){
+    .flex1{
+        display: flex;
+        overflow: auto;
+        flex-direction: column;
+    }
+}
+@media only screen and (min-device-width: 768px){}
 .cam-idle{
   /* background: rgba(255,255,255,1); */
   /* background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 35%, rgba(0,0,0,1) 35%, rgba(0,0,0,1) 100%);
@@ -86,7 +95,6 @@
 }
 .result-box {
     background-color: white;
-    width: 400px;
     flex-grow: 0 !important;
     box-shadow:
         5px 0px 11px 0px rgba(0, 0, 0, 0.55),
@@ -97,6 +105,14 @@
     color: #202124;
     justify-content: start;
 }
+
+@media only screen and (max-device-width: 767px){
+    .result-box { width: 100%; }
+}
+@media only screen and (min-device-width: 768px){
+    .result-box { width: 400px;}
+}
+
 .result-box > .title {
     font-size: 2em;
     font-weight: 500;
@@ -107,8 +123,8 @@
     align-items: center;
 }
 .result-box > .title > span:after {
-    content: "waiting";
-    color: transparent;
+    content: "Face Recognition";
+    color: #0000008e;
 }
 .result-box.failed > .title > span:after {
     content: "Failed";
@@ -353,10 +369,8 @@
     position: fixed;
     width: 40px;
     height: 40px;
-    left: calc(100% - 460px);
     transform:translate(-50%,50%);
     color: white;
-    background-color: rgba(220, 220, 220, 0.2756);
     z-index: 100;
 /* 
 	border-top: 15px solid #555;
@@ -371,6 +385,19 @@
     
     bottom: 170px;
     transition: bottom 1s; 
+}
+
+@media only screen and (max-device-width: 767px){
+    .carousel-toogle {
+        background-color: #333333bd;
+        left: calc(100% - 60px);
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .carousel-toogle {
+        background-color: rgba(220, 220, 220, 0.2756);
+        left: calc(100% - 460px);
+    }
 }
 @-webkit-keyframes at-ripple {
   0% {
@@ -396,7 +423,6 @@
     flex-direction: column;
     position: fixed;
     bottom: 0;
-    width: calc(100% - 400px);
     background-color: #0000008e;
     gap: 10px;
     overflow-x: hidden;
@@ -406,6 +432,13 @@
     height: 170px;
     padding: 10px 40px;
     transition: height 1s, padding 1s; 
+}
+
+@media only screen and (max-device-width: 767px){
+    .carousel {width: calc(100%); }
+}
+@media only screen and (min-device-width: 768px){
+    .carousel {width: calc(100% - 400px);}
 }
 .carousel.down {
     height: 0px;
@@ -618,7 +651,6 @@
         <div class="error-container" id="on_error" style="display: none;
             width: 100%;
             height: 100%;
-            display: flex;
             align-items: center;
             justify-content: center;">
             <div class="error-box" style="display: flex;justify-content: center;">
@@ -926,6 +958,8 @@ function load_localstorage(){
         display_base_img(base_img);
     }else{
         base_img = {};
+        $(".results").hide();
+        $("#on_error").hide();
     }
     
     carousel_toggle = sessionStorage.getItem("carousel-toggle");
