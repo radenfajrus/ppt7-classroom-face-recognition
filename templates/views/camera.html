@@ -53,6 +53,15 @@
     gap: 20px;
     padding: 20px;
 }
+
+.img_container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    flex-flow: wrap;
+    justify-content: center;
+}
 </style>
 <style>
 .searchbox-container > .searchbox {
@@ -202,25 +211,49 @@
         align-items: center;">
         <span>Foto dilakukan sebanyak 3x dengan metode LFR (Left, Front, Right)</span>
         <span>Pengambilan gambar mengikuti <i>Face Border</i> yang disediakan untuk mempermudah pengambilan masing-masing posisi wajah</span>
-        <img src="{{ url_for('assets',path='/img/lfr_template.png')}}">
+        <div class="img_container">
+            <img src="{{ url_for('assets',path='/img/l_template.png')}}">
+            <img src="{{ url_for('assets',path='/img/f_template.png')}}">
+            <img src="{{ url_for('assets',path='/img/r_template.png')}}">
+        </div>
     </div>
     <div class="footer"  style="padding: 1em 2em;">
         <button class="btn btn-info" style="padding: 1em 2em;" onclick="start_capture()"> Start </button>
     </div>
-    <input id="#mobilecamera1" type="file" accept="image/*" capture="environment" style="display: none;">
-    <input id="#mobilecamera2" type="file" accept="image/*" capture="environment" style="display: none;">
-    <input id="#mobilecamera3" type="file" accept="image/*" capture="environment" style="display: none;">
-
 </div>
+<input id="#mobilecamera1" type="file" accept="image/*" capture="environment" style="display: none;">
+<input id="#mobilecamera2" type="file" accept="image/*" capture="environment" style="display: none;">
+<input id="#mobilecamera3" type="file" accept="image/*" capture="environment" style="display: none;">
 <div class="step step3" #step3 style="display: none;">
     <div class="title">Step 3. Recheck and Submit</div>
-    <div class="body">
+    <div class="body" style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;">
+        <span>Silahkan cek kembali sebelum submit</span>
+        <span>Klik gambar dibawah untuk mengulang pemgambilan foto</span>
+        <div class="img_container">
+            <img src="{{ url_for('assets',path='/img/l_template.png')}}">
+            <img src="{{ url_for('assets',path='/img/f_template.png')}}">
+            <img src="{{ url_for('assets',path='/img/r_template.png')}}">
+        </div>
     </div>
-    <div class="footer">
+    <div class="footer"  style="padding: 1em 2em;">
+        <button class="btn btn-info" style="padding: 1em 2em;" onclick="save_photo()"> Submit </button>
     </div>
 </div>
 <div class="step step4" #step4 style="display: none;">
     <div class="title">Data already submitted.<br>Thank you</div>
+    <div class="body" style="
+    display: flex;
+    flex-direction: column;
+    align-items: center;">
+    <div class="img_container">
+        <img src="{{ url_for('assets',path='/img/l_template.png')}}">
+        <img src="{{ url_for('assets',path='/img/f_template.png')}}">
+        <img src="{{ url_for('assets',path='/img/r_template.png')}}">
+    </div>
+</div>
 </div>
 </div>
 {% endblock %}
@@ -289,20 +322,21 @@
         $("#step-circle-2").addClass("done");
         $("#step-circle-3").addClass("active");
         // setLoading(true);
-        // $(".step1").hide();
-        // $(".step2").show();
+        $(".step2").hide();
+        $(".step3").show();
     }
     function to_step4(data){
         $("#step-circle-1").addClass("done");
         $("#step-circle-2").addClass("done");
         $("#step-circle-3").addClass("done");
         // setLoading(true);
-        // $(".step1").hide();
-        // $(".step2").show();
+        $(".step3").hide();
+        $(".step4").show();
     }
 
 function start_capture(){
     $("#mobilecamera1").click();
+    to_step3("data");
 }
 $("#mobilecamera1").change(() => {
     if(!$("#mobilecamera2").val()) $("#mobilecamera2").click();
@@ -310,6 +344,10 @@ $("#mobilecamera1").change(() => {
 $("#mobilecamera2").change(() => {
     if(!$("#mobilecamera3").val()) $("#mobilecamera3").click();
 });
+
+function save_photo(){
+    to_step4("data");
+}
 
 $(window).on("load",function(){
     // $(".step1").show();

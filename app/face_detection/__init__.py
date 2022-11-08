@@ -50,6 +50,8 @@ def crop(id, img_base64):
             os.remove(f)
 
         frame.save("public/assets/photo/{}/base.jpg".format(id))
+        frame_boxes = frame.copy()
+        draw_boxes = ImageDraw.Draw(frame_boxes)
 
         for idx,box in enumerate(boxes):
             frame_draw = frame.copy()
@@ -58,7 +60,13 @@ def crop(id, img_base64):
             img_cropped.save(buffered, format="JPEG")
             img = base64.b64encode(buffered.getvalue())
             img_cropped.save("public/assets/photo/{}/{}.jpg".format(id,idx))
+
+
+            draw_boxes.rectangle(box.tolist(), outline=(39, 230, 89), width=3)
+            
             results.append("/assets/photo/{}/{}.jpg".format(id,idx))
+
+        frame_boxes.save("public/assets/photo/{}/base-boxes.jpg".format(id))
 
     except Exception as e:
         print(e)

@@ -22,7 +22,7 @@ async def detect_images(img: str = Form(...),date: str = Form(...)):
 
     id = date.replace(":","-").replace(".","-")
     results = {
-        "base_img" : "assets/photo/{}/base.jpg".format(id),
+        "base_img" : "assets/photo/{}/base-boxes.jpg".format(id),
         "date" : date,
         "status" : "complete",
         "data": []

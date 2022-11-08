@@ -42,7 +42,7 @@
 }
 
 @media only screen and (max-device-width: 767px){
-    .flex2 {height: 50vh;}
+    .flex2 {max-height: 770px;}
 }
 @media only screen and (min-device-width: 768px){
     .flex2 {height: 100%;}
@@ -89,14 +89,41 @@
     align-items: center;
     margin: 0;
     padding: 0;
+    min-height: 100vh; 
+    justify-content: center;
     background: linear-gradient(to bottom, var(--bg-gd-1-a) 50%, var(--bg-gd-1-b) 50%);
 }
+/* @media only screen and (max-device-width: 767px){
+    .cam-recording { 
+        width: 100%; padding-bottom: 100px; 
+        font-size: 32px;
+        padding: 20px 60px;
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .result-box { 
+        width: 400px; padding-bottom: 0px;
+        font-size: 16px;
+    }
+} */
 .cam-bottom{
     display: flex;
     gap: 10px;
     position: fixed;
     bottom: 12%;
 }
+
+/* @media only screen and (max-device-width: 767px){
+    .cam-bottom{
+        bottom: unset;
+        top: 610px;
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .cam-bottom{
+        bottom: 12%;
+    }
+} */
 .cam-bottom>button{
     background-color: var(--bg-gd-1-a);
     padding: 0.3em 0.8em;
@@ -118,10 +145,17 @@
 }
 
 @media only screen and (max-device-width: 767px){
-    .result-box { width: 100%; }
+    .result-box { 
+        width: 100%; padding-bottom: 100px; 
+        font-size: 32px;
+        padding: 20px 60px;
+    }
 }
 @media only screen and (min-device-width: 768px){
-    .result-box { width: 400px;}
+    .result-box { 
+        width: 400px; padding-bottom: 0px;
+        font-size: 16px;
+    }
 }
 
 .result-box > .title {
@@ -234,17 +268,36 @@
     flex-direction: column;
     width: 100%;
     overflow: auto;
-    font-size: 1.1rem;
     font-weight: 400;
+}
+@media only screen and (max-device-width: 767px){
+    .results > .body { 
+        font-size: 0.8em;
+        line-height: 1;
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .results > .body { 
+        font-size: 1.1rem;
+    }
 }
 .results > .body > .body-row {
     display: flex;
     flex-direction: row;
-    height: 60px;
     align-items: center;
     border-bottom: 1px solid lightgray;
     width: 100%;
     overflow-wrap: break-word;
+}
+@media only screen and (max-device-width: 767px){
+    .results > .body > .body-row { 
+        height: 120px;
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .results > .body > .body-row { 
+        height: 60px;
+    }
 }
 .results > .body > .body-row > div {
     padding: 10px 10px;
@@ -285,7 +338,7 @@
 .results > .footer > .pagenumber {
     display: flex;
     flex-direction: row;
-    gap:5px;
+    gap:15px;
     align-items: center;
 }
 .results > .footer > .pagenumber > div {
@@ -294,8 +347,29 @@
     gap: 5px;
     width: 25px;
     font-weight: 600;
-    font-size: 1.2rem;
     color:  var(--bg-gd-1-a);
+}
+@media only screen and (max-device-width: 767px){
+    .results > .footer > .pagenumber > div { 
+        font-size: 3rem;
+    }
+    .results > .footer > .paging  { 
+        scale: 2;
+    }
+    .results > .footer  { 
+        padding: 20px 0 100px 0;
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .results > .footer > .pagenumber > div { 
+        font-size: 1.2rem;
+    }
+    .results > .footer > .paging  { 
+        scale: 1;
+    }
+    .results > .footer  { 
+        padding: 10px;
+    }
 }
 .results > .footer > .pagenumber > div:hover {
     background-color: var(--bg-gd-1-a);
@@ -394,7 +468,6 @@
     cursor: pointer;
     animation: at-ripple 0.6s linear infinite;
     
-    bottom: 170px;
     transition: bottom 1s; 
 }
 
@@ -402,12 +475,14 @@
     .carousel-toogle {
         background-color: #333333bd;
         left: calc(100% - 60px);
+        bottom: 21vh;
     }
 }
 @media only screen and (min-device-width: 768px){
     .carousel-toogle {
         background-color: rgba(220, 220, 220, 0.2756);
         left: calc(100% - 460px);
+        bottom: 170px;
     }
 }
 @-webkit-keyframes at-ripple {
@@ -440,16 +515,24 @@
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
 
-    height: 170px;
     padding: 10px 40px;
     transition: height 1s, padding 1s; 
 }
 
 @media only screen and (max-device-width: 767px){
-    .carousel {width: calc(100%); }
+    .carousel {
+        width: calc(100%); 
+        height: 20vh;
+    }
+    .carousel > .title {
+        font-size: 4em;
+    }
 }
 @media only screen and (min-device-width: 768px){
-    .carousel {width: calc(100% - 400px);}
+    .carousel {
+        width: calc(100% - 400px);
+        height: 170px;
+    }
 }
 .carousel.down {
     height: 0px;
@@ -473,7 +556,7 @@
     flex-direction: row;
     gap: 30px;
     overflow-y: hidden;
-    overflow-x: hidden;
+    overflow-x: scroll;
 }
 .slick-track {
     display: flex;
@@ -492,8 +575,7 @@
 }
 .carousel-images > img {
     justify-content: center;
-    width: 160px;
-    height: 100px;
+    height: 80%;
     background-color: #ffffff1e;
     cursor: pointer;
     border: none;
@@ -647,10 +729,10 @@
             <div class="body">
             </div>
             <div class="footer">
-                <div class="paging-prev"  onclick="change_page(current_page-1)"><i class="material-icons">keyboard_arrow_left</i></div>
+                <div class="paging paging-prev"  onclick="change_page(current_page-1)"><i class="material-icons">keyboard_arrow_left</i></div>
                 <div class="pagenumber">
                 </div>
-                <div class="paging-next"  onclick="change_page(current_page+1)"><i class="material-icons">keyboard_arrow_right</i></div>
+                <div class="paging paging-next"  onclick="change_page(current_page+1)"><i class="material-icons">keyboard_arrow_right</i></div>
             </div>
         </div>
         <div class="loading-container" id="on_scanning" style="display: none;">
@@ -867,83 +949,96 @@ function take_snapshot() {
 
 function detect_images(data_uri){
     var formdata = new FormData();
-        var datetime = (new Date()).toISOString();
-        formdata.append("img",data_uri);
-        formdata.append("date", datetime);
+    var datetime = (new Date()).toISOString();
+    formdata.append("img",data_uri);
+    formdata.append("date", datetime);
 
-        var requestOptions = {
-            method: 'POST',
-            body: formdata,
-            redirect: 'follow'
-        };
-        
-        base_img = {
-            img: data_uri,
-            date: datetime,
-            status: "complete",
-            data:[],
-        };
+    var requestOptions = {
+        method: 'POST',
+        body: formdata,
+        redirect: 'follow'
+    };
+    
+    base_img = {
+        img: data_uri,
+        date: datetime,
+        status: "complete",
+        data:[],
+    };
 
-        fetch("/api/detect",requestOptions)
-            .then((res)=>res.json())
-            .then((data)=>{
-                base_img.img = data.base_img
-                base_img.date = data.date
-                base_img.status = "complete"
-                base_img.data = data.data
+    
+    $(".result-box > .title").hide();
+    $(".result-box > .capturedimage").hide();
+    $(".result-box > .searchbox-container").hide();
+    $(".results").hide();
+    $("#on_error").hide();
+    $("#on_scanning").show();
 
-                base_img.data.map((data) => {
-                    data.name = data.is_detected?data.name:"Tidak dikenali"
-                    return data
-                })
+    fetch("/api/detect",requestOptions)
+        .then((res)=>res.json())
+        .then((data)=>{
+            base_img.img = data.base_img
+            base_img.date = data.date
+            base_img.status = "complete"
+            base_img.data = data.data
 
-                results.unshift(base_img);
-                let limit = 5;
-                if(results.length>limit) results = results.slice(0,limit);
-                localStorage.setItem("captured_images",JSON.stringify(results));
-
-                display_base_img(base_img);
-                display_saved_img(results);
-                $("#results").show();
+            base_img.data.map((data) => {
+                data.name = data.is_detected?data.name:"Tidak dikenali"
+                return data
             })
-            .catch((e)=>{
-                base_img.status = "failed"
-                base_img.data = []
 
-                results.unshift(base_img);
-                let limit = 5;
-                if(results.length>limit) results = results.slice(0,limit);
-                localStorage.setItem("captured_images",JSON.stringify(results));
+            results.unshift(base_img);
+            let limit = 5;
+            if(results.length>limit) results = results.slice(0,limit);
+            localStorage.setItem("captured_images",JSON.stringify(results));
 
-                display_base_img(base_img);
-                display_saved_img(results);
+            display_base_img(base_img);
+            display_saved_img(results);
+            $(".results").show();
+        })
+        .catch((e)=>{
+            base_img.status = "failed"
+            base_img.data = []
 
-                $("#on_error").show();
-                console.log(e);
-            })
-            .finally(()=>{
-                close_cam();
-                $("#on_scanning").hide();
-            })
+            results.unshift(base_img);
+            let limit = 5;
+            if(results.length>limit) results = results.slice(0,limit);
+            localStorage.setItem("captured_images",JSON.stringify(results));
+
+            display_base_img(base_img);
+            display_saved_img(results);
+
+            $("#on_error").show();
+            console.log(e);
+        })
+        .finally(()=>{
+            close_cam();
+            $(".result-box > .title").show();
+            $(".result-box > .capturedimage").show();
+            $(".result-box > .searchbox-container").show();
+            $("#on_scanning").hide();
+        })
 }
 
 function close_cam(){
     $(".cam-recording").hide();
     $(".cam-idle").show();
+    $(".flex1").removeClass("recording");
 }
 
 function open_cam(){
+    $(".flex1").addClass("recording");
+    $(".cam-idle").hide();
+    $(".cam-recording").show();
+
     Webcam.set({
-        width: $(".cam-idle").width(),
-        height: $(".cam-idle").height(),
+        width: $(".cam-recording").width(),
+        height: $(".cam-recording").width()*3/4,
         image_format: 'jpeg',
         jpeg_quality: 90
     });
 
-    $(".cam-idle").hide();
     Webcam.attach( '.cam-live' );
-    $(".cam-recording").show();
-
 }
 	
 function remove_images(index){
