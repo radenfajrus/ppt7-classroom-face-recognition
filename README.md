@@ -24,7 +24,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://raw.githubusercontent.com/radenfajrus/ppt7/master/public/home.png)
+[![Product Name Screen Shot][product-screenshot]](#)
 
 This project designed as a tool to support Machine Learning Model testing. Model that had been trained was placed on folder public/files. Aside from testing, this  also provide data acquisition tool on page `/camera` to collect LFR-based photo from mobile phone (for Face Recognition Model training). 
 
@@ -96,3 +96,7 @@ Feature (/camera):
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[product-screenshot]: public/home.png
