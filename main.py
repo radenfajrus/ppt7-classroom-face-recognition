@@ -41,7 +41,6 @@ app.include_router(web)
 
 from fastapi.staticfiles import StaticFiles
 app.mount("/assets", StaticFiles(directory="public/assets"), name="assets")
-app.mount("/photo", StaticFiles(directory="public/photo"), name="photo")
 
 
 

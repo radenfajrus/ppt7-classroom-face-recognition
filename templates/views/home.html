@@ -941,6 +941,7 @@ function take_snapshot() {
     $("#on_scanning").show();
     // // take snapshot and get image data
     Webcam.snap( function(data_uri) {
+        console.log(data_uri);
         // display results in page
         detect_images(data_uri)
     });
@@ -1033,7 +1034,7 @@ function open_cam(){
 
     Webcam.set({
         width: $(".cam-recording").width(),
-        height: $(".cam-recording").width()*3/4,
+        height: $(".cam-recording").width()*2/3,
         image_format: 'jpeg',
         jpeg_quality: 90
     });

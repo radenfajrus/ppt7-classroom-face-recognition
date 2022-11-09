@@ -35,25 +35,37 @@
 <style>
 .content {
     text-align: center;
+    height: 100vh;
 }
 .step{
+    display: none;
+}
+.step.active{
     display: flex;
     align-items: center;
     flex-direction: column;
     padding: 20px;
 }
-.step .title{
+.title{
     font-size: 2rem;
     padding-bottom: 20px;
 }
 
-.step1 .footer {
+.step1 > .footer {
     display: flex;
     flex-direction: column;
     gap: 20px;
     padding: 20px;
 }
 
+.img_container_template {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    flex-flow: wrap;
+    justify-content: center;
+}
 .img_container {
     display: flex;
     flex-direction: row;
@@ -61,6 +73,42 @@
     padding: 20px;
     flex-flow: wrap;
     justify-content: center;
+}
+.img_container>.img {
+    max-width: 33%;
+}
+.cam-recording{
+    display: none;
+}
+.cam-recording.active{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+.cam-bottom{
+    display: flex;
+    gap: 10px;
+    position: fixed;
+    bottom: 12%;
+}
+/* @media only screen and (max-device-width: 767px){
+    .cam-bottom{
+        bottom: unset;
+        top: 610px;
+    }
+}
+@media only screen and (min-device-width: 768px){
+    .cam-bottom{
+        bottom: 12%;
+    }
+} */
+.cam-bottom>button{
+    background-color: var(--bg-gd-1-a);
+    padding: 0.3em 0.8em;
+    font-size: 1.6em;
+    font-weight: 500;
+
 }
 </style>
 <style>
@@ -186,7 +234,7 @@
         <span>Processing...</span>
     </div>
 </div>
-<div class="step step1" #step1  style="display: none;">
+<div class="step step1" #step1>
     <div class="title">Step 1. Check NIM</div>
     <div class="body">
         <div class="searchbox-container">
@@ -203,7 +251,7 @@
         <button class="results-btn btn btn-info" onclick="to_step2()" style="display: none;"> Next </button>
     </div>
 </div>
-<div class="step step2" #step2  style="display: none;">
+<div class="step step2" #step2>
     <div class="title">Step 2. Upload Foto</div>
     <div class="body" style="
         display: flex;
@@ -211,7 +259,7 @@
         align-items: center;">
         <span>Foto dilakukan sebanyak 3x dengan metode LFR (Left, Front, Right)</span>
         <span>Pengambilan gambar mengikuti <i>Face Border</i> yang disediakan untuk mempermudah pengambilan masing-masing posisi wajah</span>
-        <div class="img_container">
+        <div class="img_container_template">
             <img src="{{ url_for('assets',path='/img/l_template.png')}}">
             <img src="{{ url_for('assets',path='/img/f_template.png')}}">
             <img src="{{ url_for('assets',path='/img/r_template.png')}}">
@@ -221,45 +269,67 @@
         <button class="btn btn-info" style="padding: 1em 2em;" onclick="start_capture()"> Start </button>
     </div>
 </div>
-<input id="#mobilecamera1" type="file" accept="image/*" capture="environment" style="display: none;">
-<input id="#mobilecamera2" type="file" accept="image/*" capture="environment" style="display: none;">
-<input id="#mobilecamera3" type="file" accept="image/*" capture="environment" style="display: none;">
-<div class="step step3" #step3 style="display: none;">
+<div class="step step3" #step3>
     <div class="title">Step 3. Recheck and Submit</div>
+    <div class="title" id="on_error_default" style="display: none;color:red;font-weight: 500;">Failed Submit Photos<br>1 of 3 photos is not taken yet</div>
+    <div class="title" id="on_error" style="display: none;color:red;font-weight: 500;">Failed Submit Photos<br>There is a problem on server</div>
     <div class="body" style="
         display: flex;
         flex-direction: column;
         align-items: center;">
         <span>Silahkan cek kembali sebelum submit</span>
         <span>Klik gambar dibawah untuk mengulang pemgambilan foto</span>
-        <div class="img_container">
-            <img src="{{ url_for('assets',path='/img/l_template.png')}}">
-            <img src="{{ url_for('assets',path='/img/f_template.png')}}">
-            <img src="{{ url_for('assets',path='/img/r_template.png')}}">
-        </div>
+        <div class="img_container"></div>
     </div>
+    
     <div class="footer"  style="padding: 1em 2em;">
+        <div class="result-loading" style="display: none;padding: 30px;" ></div>
         <button class="btn btn-info" style="padding: 1em 2em;" onclick="save_photo()"> Submit </button>
     </div>
 </div>
-<div class="step step4" #step4 style="display: none;">
+<div class="step step4" #step4>
     <div class="title">Data already submitted.<br>Thank you</div>
     <div class="body" style="
-    display: flex;
-    flex-direction: column;
-    align-items: center;">
-    <div class="img_container">
-        <img src="{{ url_for('assets',path='/img/l_template.png')}}">
-        <img src="{{ url_for('assets',path='/img/f_template.png')}}">
-        <img src="{{ url_for('assets',path='/img/r_template.png')}}">
+        display: flex;
+        flex-direction: column;
+        align-items: center;">
+        <div class="img_container"></div>
     </div>
 </div>
+
+<input id="mobilecamera1" type="text" hidden>
+<input id="mobilecamera2" type="text" hidden>
+<input id="mobilecamera3" type="text" hidden>
+<div class="cam-recording camera1">
+    <div class="title">Left Position</div>
+    <div class="cam-live"></div>
+    <div class="cam-bottom">
+        <button  type="button" class="btn btn-primary" onclick="take_snapshot('mobilecamera1')">Capture</button>
+        <button  type="button" class="btn btn-primary" onclick="close_cam()">Close</button>
+    </div>
+</div>
+<div class="cam-recording camera2 ">
+    <div class="title">Front Position</div>
+    <div class="cam-live"></div>
+    <div class="cam-bottom">
+        <button  type="button" class="btn btn-primary" onclick="take_snapshot('mobilecamera2')">Capture</button>
+        <button  type="button" class="btn btn-primary" onclick="close_cam()">Close</button>
+    </div>
+</div>
+<div class="cam-recording camera3">
+    <div class="title">Right Position</div>
+    <div class="cam-live"></div>
+    <div class="cam-bottom">
+        <button  type="button" class="btn btn-primary" onclick="take_snapshot('mobilecamera3')">Capture</button>
+        <button  type="button" class="btn btn-primary" onclick="close_cam()">Close</button>
+    </div>
 </div>
 </div>
 {% endblock %}
 
 
 {% block scripts %}
+<script src="{{ url_for('assets', path='/js/webcam.js') }}"></script>
 <script>
     var nim;
     function setLoading(status){
@@ -291,15 +361,27 @@
         $(".results-none").hide();
         $(".results-btn").hide();
 
-        fetch("/api/images/"+nim)
+        fetch("/api/photo/"+nim)
             .then((res) => {
                 return res.json();
             })
             .then((data) => {
-                console.log(data);
                 if(data.length){
                     $(".results").show();
-                    to_step3(data);
+               
+                    let i = 0;
+                    for(let id in images){
+                        if(i<data.length){
+                            images[id].img = data[i];
+                            images[id].is_default = false;
+                            $("#"+id).val(data[i]);
+
+                            i++;
+                        }
+                    }
+
+                    render_3_images();
+                    to_step3();
                 }else{
                     $(".results-none").show();
                     $(".results-btn").show();
@@ -311,47 +393,221 @@
                 setLoading(false);
             })
     }
+    function to_step1(){
+        $("#step-circle-1").addClass("active");
+        
+        $(".step").removeClass("active");
+        $(".step1").addClass("active");
+    }
+
     function to_step2(){
         $("#step-circle-1").addClass("done");
         $("#step-circle-2").addClass("active");
-        $(".step1").hide();
-        $(".step2").show();
+        
+        $(".step").removeClass("active");
+        $(".step2").addClass("active");
+
+        // $(".step1").hide();
+        // $(".step2").show();
     }
     function to_step3(data){
         $("#step-circle-1").addClass("done");
         $("#step-circle-2").addClass("done");
         $("#step-circle-3").addClass("active");
+
+        $(".step").removeClass("active");
+        $(".step3").addClass("active");
         // setLoading(true);
-        $(".step2").hide();
-        $(".step3").show();
+        // $(".step2").hide();
+        // $(".step3").show();
     }
     function to_step4(data){
         $("#step-circle-1").addClass("done");
         $("#step-circle-2").addClass("done");
         $("#step-circle-3").addClass("done");
         // setLoading(true);
-        $(".step3").hide();
-        $(".step4").show();
+        $(".step").removeClass("active");
+        $(".step4").addClass("active");
+
+        // $(".step3").hide();
+        // $(".step4").show();
     }
 
-function start_capture(){
-    $("#mobilecamera1").click();
-    to_step3("data");
-}
-$("#mobilecamera1").change(() => {
-    if(!$("#mobilecamera2").val()) $("#mobilecamera2").click();
-});
-$("#mobilecamera2").change(() => {
-    if(!$("#mobilecamera3").val()) $("#mobilecamera3").click();
-});
 
-function save_photo(){
-    to_step4("data");
+var images = {
+    "mobilecamera1":{img:"{{ url_for('assets',path='/img/default.jpg')}}",is_default: true,},
+    "mobilecamera2":{img:"{{ url_for('assets',path='/img/default.jpg')}}",is_default: true,},
+    "mobilecamera3":{img:"{{ url_for('assets',path='/img/default.jpg')}}",is_default: true,},
+}
+function render_3_images(){
+    var h = 240;
+    var w = h*4/3;
+    if($(".content").width() < $(".content").height()) {
+        w = 240;
+        h = w*3/4
+    }
+
+    let htmls = [];
+    for(let id in images){
+        htmls.push(`
+            <div id="render${id}">
+                <img src="${images[id].img}" style="width: ${w}px;height: ${h}px;object-fit: contain; cursor:pointer;">
+            </div>
+        `)
+    }
+    $(".img_container").html(htmls.join());
+
+    for(let id in images){
+        $("#render"+id).click(()=>{
+            idx = id.replace("mobilecamera","")
+            $(".cam-recording").removeClass("active");
+            $(`.cam-recording.camera${idx}`).addClass("active");
+            $(".step.active").hide();
+            open_cam(`.cam-recording.camera${idx} > .cam-live`)
+        })
+    }
+    
+}
+
+function close_cam(){
+    $(".cam-recording").removeClass("active");
+
+    for(let id in images){
+        if(images[id].is_default) {
+            to_step3();
+            break;
+        }
+    }
+    $(".step.active").show();
+}
+
+function take_snapshot(id) {
+    Webcam.snap( function(data_uri) {
+        images[id].img = data_uri;
+        images[id].is_default = false;
+        $("#"+id).val(data_uri);
+
+        render_3_images();
+        close_cam();
+
+        $("#"+id).trigger('change');
+    });
+    
+}
+
+function open_cam(attach_location){
+    var h = $(".content").height() - $(".step-container").height();
+    var w = h*4/3;
+    if($(".content").width() < $(".content").height()) {
+        w = $(".content").height() - $(".step-container").height();
+        h = w*3/4
+    }
+
+    Webcam.set({
+        width: w,
+        height: h,
+        image_format: 'jpeg',
+        jpeg_quality: 90
+    });
+    Webcam.attach(attach_location);
+}
+	
+function start_capture(e){
+    $(".cam-recording").removeClass("active");
+    $(".cam-recording.camera1").addClass("active");
+    $(".step.active").hide();
+    open_cam(".cam-recording.camera1 > .cam-live");
+}
+
+async function convert_base64(url){
+  const data = await fetch(url);
+  const blob = await data.blob();
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob); 
+    reader.onloadend = () => {
+      const base64data = reader.result;   
+      resolve(base64data);
+    }
+  });
+}
+
+async function save_photo(){
+    $("#on_error").hide();
+    $("#on_error_default").hide();
+    $(".img_container").hide();
+    setLoading(true);
+
+    for(let id in images){
+        if(images[id].is_default) {
+            $("#on_error_default").show();
+            $("#on_error").show();
+            $(".img_container").show();
+            setLoading(false);
+            break;
+        }
+    }
+    var formdata = new FormData();
+    var datetime = (new Date()).toISOString();
+    formdata.append("nim",$("#nim_input").val());
+
+    let img_1 = $("#mobilecamera1").val();
+    img_1 = (img_1.includes("data:image"))?img_1: await convert_base64(img_1);
+    formdata.append("img_1", img_1 );
+    let img_2 = $("#mobilecamera2").val();
+    img_2 = (img_2.includes("data:image"))?img_2: await convert_base64(img_2);
+    formdata.append("img_2", img_2 );
+    let img_3 = $("#mobilecamera3").val();
+    img_3 = (img_3.includes("data:image"))?img_3: await convert_base64(img_3);
+    formdata.append("img_3", img_3 );
+    console.log(img_1);
+
+    var requestOptions = {
+        method: 'POST',
+        body: formdata,
+        redirect: 'follow'
+    };
+
+    fetch("/api/photo",requestOptions)
+        .then((res)=> {
+            if (!res.ok) {
+                throw new Error("Not 2xx response", {cause: res});
+            }
+            return res.json()
+        })
+        .then((data)=>{
+            
+            to_step4("data");
+        })
+        .catch((e)=>{
+            $("#on_error").show();
+            console.log(e);
+        })
+        .finally(()=>{
+            $(".img_container").show();
+            setLoading(false);
+        })
 }
 
 $(window).on("load",function(){
-    // $(".step1").show();
-    to_step2();
+    $("#mobilecamera1").change(() => {
+        if(!$("#mobilecamera2").val()) {
+            $(".cam-recording").removeClass("active");
+            $(".cam-recording.camera2").addClass("active");
+            $(".step.active").hide();
+            open_cam(".cam-recording.camera2 > .cam-live")
+        };
+    });
+    $("#mobilecamera2").change(() => {
+        if(!$("#mobilecamera3").val()) {
+            $(".cam-recording").removeClass("active");
+            $(".cam-recording.camera3").addClass("active");
+            $(".step.active").hide();
+            open_cam(".cam-recording.camera3 > .cam-live")
+        }
+    });
+
+    to_step1();
 });
 </script>
 {% endblock %} 

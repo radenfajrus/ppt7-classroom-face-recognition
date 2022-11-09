@@ -42,7 +42,7 @@ def crop(id, img_base64):
         # results = model.predict(img,batch_size=1,verbose = 2)[0]
         boxes, probs, landmarks = mtcnn.detect(frame, landmarks=True)
 
-        if not os.path.isdir("public/assets/photo{}".format(id)):
+        if not os.path.isdir("public/assets/photo/{}".format(id)):
             os.makedirs("public/assets/photo/{}".format(id))
 
         files = glob.glob('public/assets/photo/{}/*'.format(id))
