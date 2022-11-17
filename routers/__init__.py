@@ -14,7 +14,6 @@ api.include_router(files.router)
 # v1.include_router(default.router)
 # v1.include_router(files.router)
 
-
 web = APIRouter()
 web.include_router(home_web.router)
 web.include_router(mobile_web.router)

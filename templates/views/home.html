@@ -558,6 +558,9 @@
     overflow-y: hidden;
     overflow-x: scroll;
 }
+.carousel-images-list::-webkit-scrollbar{
+    width: 0;
+}
 .slick-track {
     display: flex;
     flex-direction: row;
@@ -702,6 +705,8 @@
     </div>
     <div class="cam-recording" style="display: none;">
         <div class="cam-live"></div>
+        <canvas class="cam-overlay" style="position: absolute;"></canvas>
+        <canvas class="cam-canvas" style="display: none;"></canvas>
         <div class="cam-bottom">
             <button  type="button" class="btn btn-primary" onclick="take_snapshot()">
                 Capture
@@ -716,14 +721,14 @@
         <div class="capturedimage"></div>
         <div class="searchbox-container">
             <div class="searchbox">
-                <input type="text" class="searchinput" placeholder="Pencarian melalui nama / nim">
+                <input type="text" class="searchinput" placeholder="Search by name / nim">
                 <div class="searchicon"><i class="material-icons">send</i></div>
             </div>
         </div>
         <div class="results">
             <div class="header">
-                <div class="col-md-3">Gambar</div>
-                <div class="col-md-6">Nama</div>
+                <div class="col-md-3">Image</div>
+                <div class="col-md-6">Name</div>
                 <div class="col-md-3">NIM</div>
             </div>
             <div class="body">
@@ -757,6 +762,7 @@
 
 {% block scripts %}
 <script src="{{ url_for('assets', path='/js/webcam.js') }}"></script>
+<!-- <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script> -->
 <script>
 
 var base_img = {};
@@ -1021,26 +1027,149 @@ function detect_images(data_uri){
         })
 }
 
+var ws;
+var proto = location.protocol==="https:"?"wss":"ws"
+var ws_url = `${proto}://${window.location.host}/wss`;
+var realtimeFaceDetection; 
+
 function close_cam(){
     $(".cam-recording").hide();
     $(".cam-idle").show();
     $(".flex1").removeClass("recording");
+
+    // webrtc_stop();
+    if(realtimeFaceDetection) clearInterval(realtimeFaceDetection);
 }
+
+var detect_images_ws_active = 0;
+
+var cam_width;
+var cam_height;
 
 function open_cam(){
     $(".flex1").addClass("recording");
     $(".cam-idle").hide();
     $(".cam-recording").show();
 
+    var w = $(".cam-recording").width();
+    var h = w*2/3;
+
+    if($(".cam-recording").width() < $(".cam-recording").height()) {
+        w = $(".cam-recording").width();
+        h = w*4/3
+    }
+    
+    
     Webcam.set({
-        width: $(".cam-recording").width(),
-        height: $(".cam-recording").width()*2/3,
+        width: w,
+        height: h,
         image_format: 'jpeg',
         jpeg_quality: 90
     });
 
     Webcam.attach( '.cam-live' );
+    navigator.mediaDevices.getUserMedia({video: true}).then((stream)=>{
+        let {width, height} = stream.getTracks()[0].getSettings();
+        cam_height = height;
+        cam_width = width;
+    });
+    // webrtc_start();
+    function detect_images_ws(){
+        if(ws==null || detect_images_ws_active) return;
+
+        if(ws.readyState===ws.CLOSED) {
+            connect_ws();
+            if(realtimeFaceDetection) clearInterval(realtimeFaceDetection);
+            realtimeFaceDetection = setInterval(detect_images_ws, 500);
+            return;
+        }
+        if(ws.readyState===ws.CONNECTING) {
+            console.log("still connection");
+            return;
+        }
+        detect_images_ws_active = 1;
+        let video = $(".cam-live > video")[0];
+        let canvas = $(".cam-canvas")[0];
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        let image = canvas.toDataURL('image/jpeg');
+
+        ws.send(image);
+        detect_images_ws_active = 0;
+        
+        
+        // let height = $(".capturedimage > a > img").height();
+        // let width = $(".capturedimage > a > img").width();
+        // canvas.getContext("2d").drawImage(video, 0, 0, width, Math.round((video.videoHeight/video.videoWidth)*width));
+        // let image2 = canvas.toDataURL('image/jpeg');
+        // $(".capturedimage > a > img").attr("src",image2);
+    }
+    realtimeFaceDetection = setInterval(detect_images_ws, 500);
 }
+
+
+function connect_ws() {
+    ws = new WebSocket(ws_url);
+    ws.onopen = function() {
+        console.log('Ws connected : '+ws_url);
+    };
+    ws.onmessage = async function(e) {
+        update_canvas_cam(JSON.parse(e.data));
+    };
+    ws.onclose = (e) => console.log;
+    ws.onerror = (err) => console.log;
+}
+function update_canvas_cam(list_box) {
+    let video = $(".cam-live > video");
+    let overlay = $(".cam-overlay");
+
+    
+    var w = $(".cam-recording").width();
+    var h = w*2/3;
+    if($(".cam-recording").width() < $(".cam-recording").height()) {
+        w = $(".cam-recording").width();
+        h = w*4/3
+    }
+
+
+    overlay.css("width",w);
+    overlay.css("height",h);
+
+    overlay[0].width = w;
+    overlay[0].height = h;
+    overlay[0].getContext("2d").clearRect(0,0,overlay.width(),overlay.height());
+    overlay[0].getContext("2d").strokeStyle = "rgb(39, 230, 89)";
+    overlay[0].getContext("2d").lineWidth = 2;
+
+    list_box.forEach((box)=>{
+        let image_width = video[0].videoWidth;
+        let image_height = video[0].videoHeight;
+
+        let width_container = w;
+        let width_real_cam = w;
+        let offset_from_left_container = 0;
+        
+        let startX   = offset_from_left_container + (width_real_cam * (box[0]/image_width));
+        let endX     = offset_from_left_container + (width_real_cam * (box[2]/image_width));
+
+        let height_container = h;
+        let height_real_cam = (w*cam_height/cam_width);
+        let offset_from_top_container = ((height_container-height_real_cam)/2);
+
+        let startY   = offset_from_top_container + (height_real_cam  * (box[1]/image_height));
+        let endY     = offset_from_top_container + (height_real_cam  * (box[3]/image_height));
+
+        overlay[0].getContext("2d").strokeRect(startX, startY, endX-startX, endY-startY);
+    });
+}
+// var webrtc_conn = null;
+// var webrtc_channel = null; 
+// var webrtc_interval = null;
+// function webrtc_start(){
+// }
+// function webrtc_stop(){
+// }
 	
 function remove_images(index){
     results.splice(index, 1);
@@ -1093,6 +1222,8 @@ function load_localstorage(){
 load_localstorage();
 
 $(window).on("load",function(){
+    connect_ws();
+
     $(".flex2-mid").click(()=>{
         open_cam()
     });

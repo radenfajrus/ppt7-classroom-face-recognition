@@ -19,6 +19,7 @@ async def home():
 @router.post("/detect")
 async def detect_images(img: str = Form(...),date: str = Form(...)):
     """ Upload File """
+    img = img.split(",")[1] if "data:image" in img else img
     images = img
     print(date)
 

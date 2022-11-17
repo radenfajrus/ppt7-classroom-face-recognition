@@ -19,13 +19,15 @@ resnet = InceptionResnetV1(pretrained='vggface2').eval()
 from io import BytesIO
 import base64
 
-def detect(img_base64):   
+def get_boxes(img_base64):   
     frame = Image.open(BytesIO(base64.b64decode(img_base64)))
     results = []
     try:
         # results = model.predict(img,batch_size=1,verbose = 2)[0]
         boxes, probs, landmarks = mtcnn.detect(frame, landmarks=True)
-        results = boxes
+        if boxes is not None:
+            results = boxes.tolist()
+
     except Exception as e:
         print(e)
 

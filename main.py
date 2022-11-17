@@ -1,17 +1,9 @@
 
-### INIT APP
+from server import http,websocket
+
+# app = http.app
 import fastapi
 app = fastapi.FastAPI()
-
-
-# print("twice") # This will run twice
-# @app.on_event("startup")
-# async def startup_event() -> None:
-#     print("once")  # This will run once
-
-# @app.on_event("shutdown")
-# async def on_shutdown() -> None:
-#     print("on_shutdown")
 
 ### INIT CONFIG
 import config
@@ -42,6 +34,9 @@ app.include_router(web)
 from fastapi.staticfiles import StaticFiles
 app.mount("/assets", StaticFiles(directory="public/assets"), name="assets")
 
+### WEBSOCKET HANDLER
+import server.websocket as websocket
+app.mount("/", websocket.ws)
 
 
 ### MIDDLEWARE : CORS
@@ -78,6 +73,6 @@ app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True,
 import uvicorn
 if __name__ == '__main__':
     import config
-    http = config.HttpConfig()
-    uvicorn.run(app='main:app', host=http.HOST, port=http.PORT, reload=True, debug=http.DEBUG)
+    conf = config.HttpConfig()
+    uvicorn.run(app='main:app', host=conf.HOST, port=conf.PORT, reload=True, debug=conf.DEBUG)
 
