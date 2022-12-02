@@ -52,9 +52,10 @@ def load_model_adaface(use_cuda=False):
     model_name = "AdaFace"
 
     model_path = os.path.join(os.path.dirname(__file__),'model/adaface_ir101_ms1mv3.ckpt')
+    model_dir = os.path.join(os.path.dirname(__file__),'model')
     if not os.path.exists(model_path):
         os.system(
-            'wget https://github.com/radenfajrus/ppt7-classroom-face-recognition/releases/download/v1/adaface_ir101_ms1mv3.ckpt -P ' + model_path
+            'wget https://github.com/radenfajrus/ppt7-classroom-face-recognition/releases/download/v1/adaface_ir101_ms1mv3.ckpt -P ' + model_dir
         )
 
     model = build_model('ir_101')

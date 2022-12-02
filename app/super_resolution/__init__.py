@@ -31,9 +31,10 @@ async def load_model(use_cuda=False):
     dni_weight = None
     
     model_path = os.path.join(os.path.dirname(__file__),'model/RealESRGAN_x4plus.pth')
+    model_dir = os.path.join(os.path.dirname(__file__),'model')
     if not os.path.exists(model_path):
         os.system(
-            'wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P ' + model_path
+            'wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P ' + model_dir
         )
 
     model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
@@ -49,8 +50,12 @@ async def load_model(use_cuda=False):
         half=half)
 
 
-    img_path = "public/assets/photo/2022-12-01T04-32-46-584Z/0.jpg"
-    img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+    img = np.zeros((112,112),dtype=np.uint8)
+    for i in range(img.shape[1]):
+        for j in range(img.shape[0]):
+            img[j,i]=i
+
+    img =  cv2.imread("public/assets/photo_sr/2022-12-02T03-26-41-299Z/0.jpg",cv2.IMREAD_UNCHANGED)
     output, _ = upsampler.enhance(img, outscale=1)
 
     _ = gc.collect()
