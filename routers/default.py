@@ -3,7 +3,7 @@ from io import BytesIO
 from fastapi import APIRouter, File, Form
 router = APIRouter()
 # from app.face_recognition import preprocess 
-from app import face_recognition 
+from app import face_recognition, super_resolution 
 
 
 from app import face_detection
@@ -30,15 +30,47 @@ async def detect_images(img: str = Form(...),date: str = Form(...)):
         "status" : "complete",
         "data": []
     }
-    list_images = face_detection.crop(id,images)
-    for img in list_images:
-        result = {
-            "is_detected" : True,
-            "name" : str(uuid.uuid4()),
-            "nim" : str(uuid.uuid1())[0:8],
-            "img" : img,
+
+    data = {}
+
+    list_res = face_detection.crop(id,images)
+    # list_images_for_sr = []
+    # print(list_res)
+    # for res in list_res:
+    #     idx = res.get("idx")
+    #     param = {
+    #         "idx": idx,
+    #         "img" : res.get("img"),
+    #     }
+    #     list_images_for_sr.append(param)
+
+    print("start super_resolution")
+    list_res = await super_resolution.do_sr_multiple(id,list_res)
+    list_images_for_fr = []
+    for res in list_res:
+        idx = res.get("idx")
+        imgname = res.get("imgname")
+
+        param = {
+            "idx": idx,
+            "imgname": imgname,
+            "is_sr": res.get("is_sr"),
+            "img_path" : res.get("img_sr_path"),
+            "img" : "assets/photo{}/{}/{}".format( "_sr" if res.get("is_sr") else "" , id ,imgname),
         }
-        results["data"].append(result)
+        data[idx] = param
+        list_images_for_fr.append(param)
+    
+    print("start face_recognition")
+    list_res = await face_recognition.predict(id,list_images_for_fr)
+    for res in list_res:
+        idx = res.get("idx")
+        data[idx]["is_detected"] = res.get("is_detected")
+        data[idx]["name"] = res.get("name")
+        data[idx]["nim"] = res.get("nim")
+
+    for i in data:
+        results["data"].append(data[i])
 
     return results
 

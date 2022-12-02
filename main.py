@@ -1,5 +1,6 @@
 
 from server import http,websocket
+from fastapi_profiler.profiler_middleware import PyInstrumentProfilerMiddleware
 
 # app = http.app
 import fastapi
@@ -12,6 +13,16 @@ print(config.HttpConfig.HOST)
 ### INIT LOGGING
 # from logging import debug
 
+
+@app.on_event("startup")
+async def on_startup():
+    print("startup")
+    from app import face_detection,face_recognition,super_resolution
+
+    use_cuda = False
+    face_detection.load_model(use_cuda)
+    await super_resolution.load_model(use_cuda)
+    face_recognition.load_model_adaface(use_cuda)
 
 ### FILE HANDLER
 from fastapi.templating import Jinja2Templates
@@ -72,7 +83,15 @@ app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True,
 ### WEB SERVER
 import uvicorn
 if __name__ == '__main__':
-    import config
+    import config,os
     conf = config.HttpConfig()
-    uvicorn.run(app='main:app', host=conf.HOST, port=conf.PORT, reload=True, debug=conf.DEBUG)
+    uvicorn.run(app='main:app', host=conf.HOST, port=conf.PORT, reload=True, debug=conf.DEBUG, reload_dirs = [
+        os.getcwd()+"/app",
+        os.getcwd()+"/app/*",
+        os.getcwd()+"/infra",
+        os.getcwd()+"/routers",
+        os.getcwd()+"/server",
+        os.getcwd()+"/utils",
+        os.getcwd()+"/*.py",
+    ])
 

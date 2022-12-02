@@ -72,12 +72,23 @@ Feature (/camera):
    ```
    #deactivate
    ```
-4. Set python executor in vscode to folder .venv
-   Install Extension Python
-   (Ctrl+Shift+P) -> Select Interpreter -> set to .venv/Scripts/python.exe
+4. Set python executor in vscode to folder .venv  
+   Install Extension Python  
+   (Ctrl+Shift+P) -> Select Interpreter -> set to .venv/Scripts/python.exe  
+     
 5. Install Dependency
    ```
    pip install -r requirement.txt
+   pip install uvicorn[standard]
+
+   ## To Support CUDA
+   # Install Visual Studio  -> Visual Studio Build Tools
+   # Install NVIDIA CUDA Toolkit
+   # Install cuDNN
+   # Install Driver NVIDIA
+   pip uninstall torch torchvision torchaudio pytorch-cuda
+   pip install --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+   # Restart
    ```
 6. Update Dependency
    ```
@@ -94,6 +105,8 @@ Feature (/camera):
    ```
    python main.py
    ```
+9. Test  
+   use this : ./public/test.png
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -4,8 +4,19 @@ __pycache__
 .vscode
 node_modules
 
+.env
+
 public/colleges/*
 public/assets/photo/*
 !public/assets/photo/.gitkeep
+public/assets/photo_sr/*
+!public/assets/photo_sr/.gitkeep
+logs/*
+!logs/.gitkeep
+app/face_recognition/dataset_before_mtcnn/*
+!app/face_recognition/dataset_before_mtcnn/.gitkeep
+app/face_recognition/model/*
+!app/face_recognition/model/.gitkeep
 
-.env
+app/super_resolution/model/*
+!app/super_resolution/.gitkeep

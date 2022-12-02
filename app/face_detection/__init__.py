@@ -1,23 +1,27 @@
 
-
-# from keras.models import load_model
-
 import cv2
+import pandas as pd
 import torch
 import numpy as np
 import os 
 
-# model = load_model('public/files/facenet_keras.h5')
-# model._make_predict_function()    
-
 from PIL import Image, ImageDraw
 
-from facenet_pytorch import MTCNN, InceptionResnetV1
-mtcnn = MTCNN()
-resnet = InceptionResnetV1(pretrained='vggface2').eval()
-
+from facenet_pytorch import MTCNN
 from io import BytesIO
 import base64
+from datetime import datetime
+
+mtcnn = None
+def load_model(use_cuda=False):
+    global mtcnn
+    
+    now = datetime.now()
+    device = "cuda" if (torch.cuda.is_available() and use_cuda) else "cpu"
+    map_location = torch.device(device)
+
+    mtcnn = MTCNN(margin=65, select_largest=False,  keep_all=True, post_process=False, device=map_location)
+    print("load model FD ({}) : {} ms".format(device,int((datetime.now() - now).total_seconds() * 1000)))
 
 def get_boxes(img_base64):   
     frame = Image.open(BytesIO(base64.b64decode(img_base64)))
@@ -36,8 +40,13 @@ def get_boxes(img_base64):
 import glob
 
 def crop(id, img_base64):   
+    start = datetime.now()
+
     frame = Image.open(BytesIO(base64.b64decode(img_base64)))
     results = []
+    data_monitor = []
+    boxes = 0
+
     buffered = BytesIO()
 
     try:
@@ -66,13 +75,29 @@ def crop(id, img_base64):
 
             draw_boxes.rectangle(box.tolist(), outline=(39, 230, 89), width=3)
             
-            results.append("/assets/photo/{}/{}.jpg".format(id,idx))
+            results.append({
+                "idx":idx,
+                "img_path":"public/assets/photo/{}/{}.jpg".format(id,idx),
+                "img_url":"/assets/photo/{}/{}.jpg".format(id,idx),
+                "box": box.tolist(),
+            })
 
         frame_boxes.save("public/assets/photo/{}/base-boxes.jpg".format(id))
 
     except Exception as e:
         print(e)
 
+    detectiontime = int((datetime.now() - start).total_seconds() * 1000)
+    print("Finish all data {} : {} ms".format(id,detectiontime))
+    data_monitor.append({
+        "id":id,
+        "count": len(boxes),
+        "detectiontime": detectiontime,
+    })
+    df_monitor = pd.DataFrame(data_monitor)
+    print(df_monitor)
+    df_monitor.to_csv("logs/fd_{}.csv".format(id),index=False,header=True)
+    
     return results
 
 

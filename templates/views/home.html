@@ -987,17 +987,22 @@ function detect_images(data_uri){
             base_img.img = data.base_img
             base_img.date = data.date
             base_img.status = "complete"
-            base_img.data = data.data
+            base_img.data = data.data.sort((a, b) => parseFloat(a.idx) - parseFloat(b.idx));
 
-            base_img.data.map((data) => {
-                data.name = data.is_detected?data.name:"Tidak dikenali"
-                return data
-            })
+            // base_img.data.map((data) => {
+            //     data.name = data.is_detected?data.name:"Tidak dikenali"
+            //     return data
+            // })
 
             results.unshift(base_img);
-            let limit = 5;
-            if(results.length>limit) results = results.slice(0,limit);
-            localStorage.setItem("captured_images",JSON.stringify(results));
+
+            let char_limit = 5000000;
+            results_text = JSON.stringify(results);
+            while(results_text.length>char_limit) {
+                results = results.slice(0,results.length-1);
+                results_text = JSON.stringify(results);
+            }
+            localStorage.setItem("captured_images",results_text);
 
             display_base_img(base_img);
             display_saved_img(results);
@@ -1008,9 +1013,14 @@ function detect_images(data_uri){
             base_img.data = []
 
             results.unshift(base_img);
-            let limit = 5;
-            if(results.length>limit) results = results.slice(0,limit);
-            localStorage.setItem("captured_images",JSON.stringify(results));
+
+            let char_limit = 5000000;
+            results_text = JSON.stringify(results);
+            while(results_text.length>char_limit) {
+                results = results.slice(0,results.length-1);
+                results_text = JSON.stringify(results);
+            }
+            localStorage.setItem("captured_images",results_text);
 
             display_base_img(base_img);
             display_saved_img(results);
