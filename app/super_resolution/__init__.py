@@ -55,7 +55,7 @@ async def load_model(use_cuda=False):
         for j in range(img.shape[0]):
             img[j,i]=i
 
-    img =  cv2.imread("public/assets/photo_sr/2022-12-02T03-26-41-299Z/0.jpg",cv2.IMREAD_UNCHANGED)
+    #img =  cv2.imread("public/assets/photo_sr/2022-12-02T03-26-41-299Z/0.jpg",cv2.IMREAD_UNCHANGED)
     output, _ = upsampler.enhance(img, outscale=1)
 
     _ = gc.collect()
